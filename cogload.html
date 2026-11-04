@@ -1,0 +1,778 @@
+<title>認知負荷訓練</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* Layout: one-hand phone tool. Setup = stacked option rows; Run = full-screen stage (dark "scoreboard" panel) over a thumb-zone answer pad. */
+:root{
+  --bg:#eef0ec; --surface:#ffffff; --ink:#14181d; --muted:#5b6470; --line:#d6dad3;
+  --accent:#e2560e; --accent-ink:#ffffff; --ok:#1d9a52; --bad:#d4402e;
+  --stage:#151a21; --stage-ink:#f1f3f6; --stage-dim:#8a94a1;
+  --c-red:#ff5a4f; --c-blue:#4d8dff; --c-green:#3ecf6e; --c-yellow:#ffd23f;
+  --f-display:"Barlow Condensed","Arial Narrow","Noto Sans TC",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1115; --surface:#171b21; --ink:#e8ebee; --muted:#9aa3ad; --line:#2a3038;
+  --accent:#ff7a33; --accent-ink:#14181d; --ok:#3ecf6e; --bad:#ff5a4f;
+  --stage:#0a0d11; --stage-ink:#f1f3f6; --stage-dim:#7f8995; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1115; --surface:#171b21; --ink:#e8ebee; --muted:#9aa3ad; --line:#2a3038;
+  --accent:#ff7a33; --accent-ink:#14181d; --ok:#3ecf6e; --bad:#ff5a4f;
+  --stage:#0a0d11; --stage-ink:#f1f3f6; --stage-dim:#7f8995; color-scheme:dark}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+button:focus-visible,input:focus-visible,label:focus-within{outline:3px solid var(--accent);outline-offset:2px}
+
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px;display:flex;flex-direction:column;gap:22px}
+header.top h1{font-family:var(--f-display);font-weight:700;font-size:40px;line-height:1;letter-spacing:.01em;margin:0;text-wrap:balance}
+header.top p{margin:6px 0 0;color:var(--muted);font-size:14px}
+.group{display:flex;flex-direction:column;gap:8px}
+.label{font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;inset:0;margin:0}
+.chip span{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);font-weight:500}
+.chip input:checked + span{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip small{font-size:12px;opacity:.7;font-weight:400}
+.text{width:100%;min-height:46px;padding:0 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface)}
+.toggle b{font-weight:500}
+.toggle small{display:block;color:var(--muted);font-size:12px}
+.toggle input{width:22px;height:22px;accent-color:var(--accent);flex:none}
+.note{font-size:13px;color:var(--muted);margin:0}
+.note.warn{color:var(--bad)}
+.btn-main{min-height:60px;border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);font-family:var(--f-display);font-size:28px;font-weight:700;letter-spacing:.04em}
+.btn-ghost{min-height:48px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);font-weight:500;padding:0 16px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row > *{flex:1 1 140px}
+
+.hist{display:flex;flex-direction:column;gap:0;border-top:1.5px solid var(--line)}
+.hist .h{display:grid;grid-template-columns:1fr auto auto 40px;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;align-items:center}
+.hist-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.link-btn{min-height:36px;padding:0 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font-size:13px;font-weight:500;color:var(--muted)}
+.link-btn.arm{background:var(--bad);border-color:var(--bad);color:#fff}
+.del{width:40px;height:40px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-size:18px}
+.del:active{background:var(--line)}
+.hist .h .meta{min-width:0;color:var(--muted);font-size:12px}
+.num{font-family:var(--f-display);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums}
+
+/* RUN */
+#run{position:fixed;inset:0;background:var(--bg);display:grid;grid-template-rows:auto auto 1fr auto auto;gap:10px;
+  padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));
+  padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));z-index:5}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.bar .stat{font-family:var(--f-display);font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.bar .stat span{color:var(--muted);font-size:15px;font-weight:600;margin-left:4px}
+.stop{min-height:40px;padding:0 16px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font-weight:700}
+.timebar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.timebar i{display:block;height:100%;width:100%;background:var(--accent);transform-origin:left;transition:none}
+.stage{background:var(--stage);color:var(--stage-ink);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;min-height:0;overflow:hidden;position:relative;transition:box-shadow .15s}
+.stage.ok{box-shadow:inset 0 0 0 6px var(--ok)}
+.stage.bad{box-shadow:inset 0 0 0 6px var(--bad)}
+.stage .rule{font-size:clamp(24px,min(7vw,5vh),44px);letter-spacing:.1em;color:var(--stage);background:var(--stage-ink);padding:2px 16px;border-radius:8px;font-weight:900}
+.big{font-family:var(--f-display);font-weight:700;font-size:clamp(56px,17vw,150px);line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.word{font-weight:900;font-size:clamp(96px,32vw,220px);line-height:1}
+.field{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:min(100%,560px)}
+.field svg{width:clamp(44px,13vw,84px);height:clamp(44px,13vw,84px)}
+.prompt{font-size:clamp(32px,9.5vw,64px);font-weight:900;line-height:1.25;text-align:center;text-wrap:balance}
+.heard{position:absolute;left:12px;right:12px;bottom:10px;text-align:center;font-size:13px;color:var(--stage-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pad{display:grid;gap:10px}
+.pad.g2{grid-template-columns:1fr 1fr}
+.pad.g3{grid-template-columns:repeat(3,1fr)}
+.pad button{min-height:68px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);font-family:var(--f-display);font-weight:700;font-size:34px;font-variant-numeric:tabular-nums}
+.pad button:active{transform:scale(.97)}
+.pad.kp button{min-height:56px;font-size:28px}
+.pad .sw{display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--f-body);font-size:24px}
+.pad .sw i{width:26px;height:26px;border-radius:50%;flex:none}
+.pad .tf-y{background:var(--ok);color:#fff;border-color:transparent;font-family:var(--f-body);font-size:30px}
+.pad .tf-n{background:var(--bad);color:#fff;border-color:transparent;font-family:var(--f-body);font-size:30px}
+.pad .go{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.entry{grid-column:1/-1;min-height:48px;display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-size:36px;font-weight:700;border-bottom:2px solid var(--line);font-variant-numeric:tabular-nums}
+.vstat{text-align:center;font-size:13px;color:var(--muted);min-height:20px}
+.vstat.warn{color:var(--bad)}
+
+/* RESULT */
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--line)}
+.kpis div{padding:14px 4px;display:flex;flex-direction:column;gap:2px}
+.kpis div:nth-child(odd){border-right:1px solid var(--line);padding-right:14px}
+.kpis div:nth-child(even){padding-left:14px}
+.kpis div:nth-child(-n+2){border-bottom:1px solid var(--line)}
+.kpis b{font-family:var(--f-display);font-size:44px;line-height:1;font-variant-numeric:tabular-nums}
+.kpis span{font-size:12px;color:var(--muted);letter-spacing:.08em}
+.tbl{overflow-x:auto}
+.tbl table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.tbl th{text-align:left;font-size:12px;color:var(--muted);font-weight:700;padding:6px 8px 6px 0;border-bottom:1.5px solid var(--line);white-space:nowrap}
+.tbl td{padding:7px 8px 7px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td.y{color:var(--ok);font-weight:700}
+.tbl td.n{color:var(--bad);font-weight:700}
+textarea.csv{width:100%;min-height:120px;font:12px ui-monospace,monospace;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);padding:8px}
+@media (prefers-reduced-motion: reduce){.stage{transition:none}.pad button:active{transform:none}}
+</style>
+
+<section id="setup" class="wrap">
+  <header class="top">
+    <h1>認知負荷訓練</h1>
+    <p>動作中同時答題。選手自己點選；手不方便時開語音作答。</p>
+  </header>
+
+  <div class="group">
+    <label class="label" for="athlete">選手</label>
+    <input id="athlete" class="text" placeholder="名字（選填，用來分辨紀錄）" autocomplete="off">
+  </div>
+
+  <div class="group">
+    <div class="label">題型（可複選，多選＝隨機切換）</div>
+    <div class="chips" id="types">
+      <label class="chip"><input type="checkbox" id="t-math" value="math" checked><span>數學</span></label>
+      <label class="chip"><input type="checkbox" id="t-stroop" value="stroop" checked><span>顏色干擾 <small>Stroop</small></span></label>
+      <label class="chip"><input type="checkbox" id="t-count" value="count"><span>圖形計數</span></label>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="label">作答方式</div>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="mode" id="m-choice" value="choice" checked><span>選擇題</span></label>
+      <label class="chip"><input type="radio" name="mode" id="m-tf" value="tf"><span>是非題</span></label>
+      <label class="chip"><input type="radio" name="mode" id="m-short" value="short"><span>簡答題</span></label>
+      <label class="chip"><input type="radio" name="mode" id="m-mix" value="mix"><span>隨機</span></label>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="label">難度</div>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="level" id="l-1" value="1" checked><span>1 基礎</span></label>
+      <label class="chip"><input type="radio" name="level" id="l-2" value="2"><span>2 進階</span></label>
+      <label class="chip"><input type="radio" name="level" id="l-3" value="3"><span>3 高壓</span></label>
+    </div>
+    <p class="note" id="levelNote"></p>
+  </div>
+
+  <div class="group">
+    <div class="label">每題時限</div>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="limit" id="q-0" value="0" checked><span>不限</span></label>
+      <label class="chip"><input type="radio" name="limit" id="q-3" value="3"><span>3 秒</span></label>
+      <label class="chip"><input type="radio" name="limit" id="q-5" value="5"><span>5 秒</span></label>
+      <label class="chip"><input type="radio" name="limit" id="q-8" value="8"><span>8 秒</span></label>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="label">訓練長度</div>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="len" id="n-20" value="q20" checked><span>20 題</span></label>
+      <label class="chip"><input type="radio" name="len" id="n-60" value="s60"><span>60 秒</span></label>
+      <label class="chip"><input type="radio" name="len" id="n-120" value="s120"><span>2 分鐘</span></label>
+      <label class="chip"><input type="radio" name="len" id="n-free" value="free"><span>手動停止</span></label>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="label">語音</div>
+    <label class="toggle" for="voiceIn"><span><b>語音作答</b><small>說出答案：數字、紅藍綠黃、對／錯</small></span><input type="checkbox" id="voiceIn"></label>
+    <label class="toggle" for="voiceOut"><span><b>唸出題目</b><small>眼睛離開螢幕時用；顏色干擾題仍需看螢幕</small></span><input type="checkbox" id="voiceOut"></label>
+    <p class="note" id="voiceNote"></p>
+  </div>
+
+  <button class="btn-main" id="startBtn">開始</button>
+
+  <div class="group">
+    <div class="hist-head"><div class="label">最近紀錄（只存在這台裝置）</div><button class="link-btn" id="clearHist" hidden>清除全部</button></div>
+    <div class="hist" id="hist"></div>
+  </div>
+</section>
+
+<section id="run" hidden>
+  <div class="bar">
+    <div class="stat" id="rCount">1<span>題</span></div>
+    <div class="stat" id="rClock">0:00</div>
+    <button class="stop" id="stopBtn">停止</button>
+  </div>
+  <div class="timebar"><i id="tbar"></i></div>
+  <div class="stage" id="stage"></div>
+  <div class="pad" id="pad"></div>
+  <div class="vstat" id="vstat"></div>
+</section>
+
+<section id="result" class="wrap" hidden>
+  <header class="top">
+    <h1 id="resTitle">本次結果</h1>
+    <p id="resMeta"></p>
+  </header>
+  <div class="kpis">
+    <div><b id="kAcc">–</b><span>正確率</span></div>
+    <div><b id="kRt">–</b><span>平均反應（答對，秒）</span></div>
+    <div><b id="kN">–</b><span>作答題數</span></div>
+    <div><b id="kTo">–</b><span>逾時</span></div>
+  </div>
+  <div class="group">
+    <div class="label">各題型</div>
+    <div class="tbl"><table id="byType"></table></div>
+  </div>
+  <div class="row">
+    <button class="btn-main" id="againBtn">再練一次</button>
+    <button class="btn-ghost" id="backBtn">回設定</button>
+  </div>
+  <div class="group">
+    <div class="label">逐題紀錄</div>
+    <div class="tbl"><table id="detail"></table></div>
+  </div>
+  <div class="row">
+    <button class="btn-ghost" id="csvBtn">複製 CSV（貼到試算表）</button>
+  </div>
+  <textarea class="csv" id="csvBox" hidden readonly></textarea>
+</section>
+
+<script>
+const $ = s => document.querySelector(s);
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const COLORS = [
+  {k:'red', n:'紅', v:'var(--c-red)'},
+  {k:'blue', n:'藍', v:'var(--c-blue)'},
+  {k:'green', n:'綠', v:'var(--c-green)'},
+  {k:'yellow', n:'黃', v:'var(--c-yellow)'}
+];
+const colorByK = k => COLORS.find(c => c.k === k);
+const SHAPES = [
+  {k:'circle', n:'圓形', svg:'<circle cx="50" cy="50" r="40"/>'},
+  {k:'tri', n:'三角形', svg:'<polygon points="50,8 93,88 7,88"/>'},
+  {k:'square', n:'方形', svg:'<rect x="12" y="12" width="76" height="76"/>'},
+  {k:'star', n:'星形', svg:'<polygon points="50,6 61,38 95,38 67,58 78,92 50,71 22,92 33,58 5,38 39,38"/>'}
+];
+const TYPE_NAME = {math:'數學', stroop:'顏色干擾', count:'圖形計數'};
+const MODE_NAME = {choice:'選擇', tf:'是非', short:'簡答'};
+const LEVEL_NOTE = {
+  1:'數學：個位數加減。顏色：多數字色一致。計數：只數形狀。',
+  2:'數學：二位數加減、九九乘法。顏色：多數字色衝突。計數：數顏色或形狀。',
+  3:'數學：二位數混合運算。顏色：規則隨機切換「看顏色／讀字」。計數：顏色＋形狀同時符合。'
+};
+
+/* ---------- question generators ---------- */
+function numOptions(ans){
+  const set = new Set([ans]);
+  const spread = Math.max(2, Math.ceil(ans*0.15)+1);
+  let guard = 0;
+  while(set.size < 4 && guard++ < 200){
+    const d = ans + pick([-1,1]) * rnd(1, spread);
+    if(d >= 0) set.add(d);
+  }
+  let x = ans + 1; while(set.size < 4){ set.add(x++); }
+  return shuffle([...set]);
+}
+/* Math distractors share the answer's last digit (offsets of ±10/20/30),
+   so matching the units digit can't single out the answer: the tens/hundreds
+   (including carries) must actually be computed. Level 1 keeps near values. */
+function mathOptions(ans, level){
+  if(level === 1) return numOptions(ans);
+  const offs = shuffle([-30,-20,-10,10,20,30].filter(o => ans + o >= 0));
+  return shuffle([ans, ...offs.slice(0,3).map(o => ans + o)]);
+}
+function mathWrong(ans, level){
+  if(level === 1 || Math.random() < 0.25) return wrongNear(ans);
+  const offs = [-20,-10,10,20].filter(o => ans + o >= 0);
+  return ans + pick(offs);
+}
+function wrongNear(ans){
+  let v = ans + pick([-1,1]) * rnd(1,3);
+  if(v < 0 || v === ans) v = ans + rnd(1,3);
+  return v;
+}
+
+function genMath(level, mode){
+  let a, b, op;
+  if(level === 1){ op = pick(['+','−']); a = rnd(1,9); b = rnd(1,9); }
+  else if(level === 2){ op = pick(['+','−','×']); if(op==='×'){ a=rnd(2,9); b=rnd(2,9); } else { a=rnd(10,50); b=rnd(2,19); } }
+  else { op = pick(['+','−','×']); if(op==='×'){ a=rnd(3,12); b=rnd(3,9); } else { a=rnd(20,99); b=rnd(11,89); } }
+  if(op === '−' && b > a) [a,b] = [b,a];
+  const ans = op==='+' ? a+b : op==='−' ? a-b : a*b;
+  const say = {'+':'加','−':'減','×':'乘'}[op];
+  if(mode === 'tf'){
+    const truth = Math.random() < 0.5;
+    const shown = truth ? ans : mathWrong(ans, level);
+    return {type:'math', mode, kind:'bool', answer:truth,
+      stage:`<div class="big">${a} ${op} ${b} = ${shown}</div>`,
+      prompt:'算式對嗎？', speak:`${a}${say}${b}，等於${shown}，對還是錯`, label:`${a}${op}${b}=${shown}`};
+  }
+  return {type:'math', mode, kind:'num', answer:ans, options: mode==='choice' ? mathOptions(ans, level) : null,
+    stage:`<div class="big">${a} ${op} ${b}</div>`, prompt:'答案是？', speak:`${a}${say}${b}`, label:`${a}${op}${b}`};
+}
+
+function genStroop(level, mode){
+  const word = pick(COLORS);
+  const pCong = level===1 ? 0.4 : level===2 ? 0.2 : 0.15;
+  const ink = Math.random() < pCong ? word : pick(COLORS.filter(c => c !== word));
+  const rule = level===3 && Math.random() < 0.4 ? 'word' : 'ink';
+  const target = rule==='ink' ? ink : word;
+  const ruleText = rule==='ink' ? '看顏色' : '讀字';
+  const stage = `${level===3 ? `<div class="rule">${ruleText}</div>` : ''}<div class="word" style="color:${ink.v}">${word.n}</div>`;
+  const label = `「${word.n}」字・${ink.n}色・${ruleText}`;
+  if(mode === 'tf'){
+    const truth = Math.random() < 0.5;
+    const shown = truth ? target : pick(COLORS.filter(c => c !== target));
+    return {type:'stroop', mode, kind:'bool', answer:truth, stage,
+      prompt: rule==='ink' ? `字的顏色是「${shown.n}」？` : `這個字是「${shown.n}」？`,
+      speak: null, label: `${label}・問${shown.n}`};
+  }
+  return {type:'stroop', mode, kind:'color', answer:target.k, stage,
+    prompt: rule==='ink' ? '字的顏色是？' : '這是什麼字？', speak:null, label};
+}
+
+function genCount(level, mode){
+  const n = level===1 ? rnd(5,7) : level===2 ? rnd(7,10) : rnd(9,13);
+  const items = [];
+  for(let i=0;i<n;i++) items.push({s:pick(SHAPES), c: level===1 ? null : pick(COLORS)});
+  let dim = level===1 ? 'shape' : level===2 ? pick(['shape','color']) : 'both';
+  const ts = pick(SHAPES), tc = pick(COLORS);
+  const match = it => dim==='shape' ? it.s===ts : dim==='color' ? it.c===tc : (it.s===ts && it.c===tc);
+  if(!items.some(match)){ items[0] = {s:ts, c: dim==='shape' && level===1 ? null : tc}; }
+  if(dim==='shape' && level>1){ /* colors are just noise */ }
+  const count = items.filter(match).length;
+  const field = items.map(it => `<svg viewBox="0 0 100 100" aria-hidden="true" fill="${it.c ? it.c.v : 'var(--stage-ink)'}">${it.s.svg}</svg>`).join('');
+  const what = dim==='shape' ? ts.n : dim==='color' ? `${tc.n}色` : `${tc.n}色${ts.n}`;
+  const stage = `<div class="field">${field}</div>`;
+  if(mode === 'tf'){
+    const truth = Math.random() < 0.5;
+    const s2 = truth ? count : wrongNear(count);
+    return {type:'count', mode, kind:'bool', answer:truth, stage,
+      prompt:`${what}有 ${s2} 個？`, speak:null, label:`${what}${count}個・問${s2}`};
+  }
+  return {type:'count', mode, kind:'num', answer:count, options: mode==='choice' ? numOptions(count) : null,
+    stage, prompt:`${what}有幾個？`, speak:null, label:`${what}有${count}個`};
+}
+const GEN = {math:genMath, stroop:genStroop, count:genCount};
+
+/* ---------- settings ---------- */
+function readSettings(){
+  const types = [...document.querySelectorAll('#types input:checked')].map(i => i.value);
+  return {
+    name: $('#athlete').value.trim(),
+    types: types.length ? types : ['math'],
+    mode: document.querySelector('input[name=mode]:checked').value,
+    level: +document.querySelector('input[name=level]:checked').value,
+    limit: +document.querySelector('input[name=limit]:checked').value,
+    len: document.querySelector('input[name=len]:checked').value,
+    voiceIn: $('#voiceIn').checked,
+    voiceOut: $('#voiceOut').checked
+  };
+}
+const PREF_KEY = 'clt-settings', HIST_KEY = 'clt-history';
+function savePrefs(s){ try{ localStorage.setItem(PREF_KEY, JSON.stringify(s)); }catch(e){} }
+function loadPrefs(){
+  let s; try{ s = JSON.parse(localStorage.getItem(PREF_KEY) || 'null'); }catch(e){ s = null; }
+  if(!s) return;
+  $('#athlete').value = s.name || '';
+  document.querySelectorAll('#types input').forEach(i => i.checked = s.types.includes(i.value));
+  const set = (name, v) => { const el = document.querySelector(`input[name=${name}][value="${v}"]`); if(el) el.checked = true; };
+  set('mode', s.mode); set('level', s.level); set('limit', s.limit); set('len', s.len);
+  $('#voiceIn').checked = !!s.voiceIn; $('#voiceOut').checked = !!s.voiceOut;
+}
+function updateLevelNote(){ $('#levelNote').textContent = LEVEL_NOTE[document.querySelector('input[name=level]:checked').value]; }
+
+/* ---------- audio feedback ---------- */
+let actx = null;
+function beep(ok){
+  try{
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.frequency.value = ok ? 880 : 220; o.type = ok ? 'sine' : 'square';
+    g.gain.setValueAtTime(0.0001, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.15, actx.currentTime + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + (ok ? 0.12 : 0.25));
+    o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime + 0.3);
+  }catch(e){}
+}
+
+/* ---------- speech out ---------- */
+function speak(text, done){
+  const synth = window.speechSynthesis;
+  if(!synth || !text){ done && done(); return; }
+  let finished = false;
+  const fin = () => { if(finished) return; finished = true; done && done(); };
+  const waitIdle = n => { if(!synth.speaking || n <= 0) fin(); else setTimeout(() => waitIdle(n - 1), 150); };
+  try{
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-TW'; u.rate = 1.15;
+    u.onend = () => setTimeout(fin, 250);   // 等喇叭餘音散掉再開麥克風
+    u.onerror = fin;
+    synth.speak(u);
+    setTimeout(() => waitIdle(20), 1500 + text.length * 350);
+  }catch(e){ fin(); }
+}
+
+/* ---------- speech in ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, recWanted = false, recPaused = false, recRunning = false;
+let recLen = 0, recBoundary = 0, numTimer = 0;
+
+function cn2num(s){
+  if(/^\d+$/.test(s)) return +s;
+  const d = {'零':0,'〇':0,'一':1,'二':2,'兩':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9};
+  let total = 0, cur = 0;
+  for(const ch of s){
+    if(ch in d) cur = d[ch];
+    else if(ch === '十'){ total += (cur || 1) * 10; cur = 0; }
+    else if(ch === '百'){ total += (cur || 1) * 100; cur = 0; }
+  }
+  return total + cur;
+}
+// 只講一個數字時，辨識常回傳同音字（例：七→期、九→酒）。只在整句很短時才換算，避免誤判。
+const DIGIT_SOUNDALIKE = {
+  '依':'一','衣':'一','醫':'一','伊':'一','壹':'一',
+  '兒':'二','而':'二','爾':'二','貳':'二',
+  '山':'三','參':'三','叁':'三','散':'三',
+  '死':'四','似':'四','寺':'四','肆':'四',
+  '我':'五','無':'五','舞':'五','午':'五','伍':'五','屋':'五',
+  '溜':'六','留':'六','劉':'六','陸':'六',
+  '期':'七','其':'七','妻':'七','騎':'七','齊':'七','棋':'七','漆':'七','柒':'七',
+  '吧':'八','爸':'八','巴':'八','拔':'八','捌':'八',
+  '酒':'九','久':'九','舊':'九','救':'九','玖':'九',
+  '時':'十','石':'十','實':'十','食':'十','拾':'十',
+  '玲':'零','鈴':'零','靈':'零'
+};
+function cleanText(t){ return (t || '').replace(/[\s，。,.!?！？、：:]/g, ''); }
+function parseAnswer(text, kind, loose){
+  let t = cleanText(text);
+  if(!t) return null;
+  if(kind === 'num'){
+    if(loose && t.length <= 3) t = [...t].map(ch => DIGIT_SOUNDALIKE[ch] || ch).join('');
+    const m = t.match(/\d+|[零〇一二兩三四五六七八九十百]+/g);
+    return m ? cn2num(m[m.length - 1]) : null;
+  }
+  if(kind === 'color'){
+    const m = t.match(/紅|洪|虹|宏|鴻|藍|籃|蘭|嵐|攔|綠|律|濾|慮|率|旅|黃|皇|凰|煌|璜|王/g);
+    if(!m) return null;
+    const w = m[m.length - 1];
+    return /紅|洪|虹|宏|鴻/.test(w) ? 'red' : /藍|籃|蘭|嵐|攔/.test(w) ? 'blue' : /綠|律|濾|慮|率|旅/.test(w) ? 'green' : 'yellow';
+  }
+  const m = t.match(/不對|不是|錯誤|沒錯|正確|錯|措|挫|對|隊|兌|是/g);
+  if(!m) return null;
+  return !/^(不對|不是|錯誤|錯|措|挫)$/.test(m[m.length - 1]);
+}
+
+function vstat(msg, warn){ const el = $('#vstat'); el.textContent = msg; el.classList.toggle('warn', !!warn); }
+// 從這一刻起才算這一題的回答；還沒講完的那句屬於上一題，直接跳過
+function armVoice(){ recBoundary = recLen; clearTimeout(numTimer); }
+
+function onRecResult(e){
+  recLen = e.results.length;
+  const heard = $('#heard');
+  if(heard && recLen) heard.textContent = '聽到：' + e.results[recLen - 1][0].transcript;
+  if(!S || !S.active || S.locked || recPaused || !S.cur || !S.qStart) return;
+  const q = S.cur;
+  for(let i = recBoundary; i < recLen; i++){
+    const r = e.results[i];
+    if(r.isFinal){
+      for(let a = 0; a < r.length; a++){
+        const v = parseAnswer(r[a].transcript, q.kind, true);
+        if(v !== null){ recBoundary = i + 1; submit(v, 'voice'); return; }
+      }
+      recBoundary = i + 1;
+    } else if(i === recLen - 1){
+      const v = parseAnswer(r[0].transcript, q.kind, false);
+      if(v === null) continue;
+      if(q.kind !== 'num'){ recBoundary = recLen; submit(v, 'voice'); return; }
+      // 數字要等講完（「十」可能是「十二」的開頭），停頓 0.6 秒沒變化就送出
+      clearTimeout(numTimer);
+      numTimer = setTimeout(() => {
+        if(S && S.active && !S.locked && S.cur === q){ recBoundary = recLen; submit(v, 'voice'); }
+      }, 600);
+    }
+  }
+}
+function recStart(){
+  if(!rec || recRunning || recPaused || !recWanted) return;
+  try{ rec.start(); recRunning = true; }catch(e){}
+}
+function makeRec(){
+  const r = new SR();
+  r.lang = 'zh-TW'; r.continuous = true; r.interimResults = true; r.maxAlternatives = 5;
+  r.onstart = () => { recLen = 0; recBoundary = 0; };
+  r.onaudiostart = () => { if(r === rec) vstat('🎙 聆聽中，直接說答案'); };
+  r.onresult = e => { if(r === rec) onRecResult(e); };
+  r.onerror = ev => {
+    if(r !== rec) return;
+    if(ev.error === 'not-allowed' || ev.error === 'service-not-allowed'){
+      recWanted = false;
+      vstat('麥克風被封鎖：請改用點選，或在瀏覽器設定允許麥克風', true);
+    } else if(ev.error === 'network'){
+      vstat('語音辨識需要網路，請確認連線', true);
+    }
+  };
+  r.onend = () => {
+    if(r !== rec) return;
+    recRunning = false;
+    if(!recWanted || !S || !S.active) return;
+    if(recPaused){ vstat('🔈 唸題中，唸完再回答'); return; }
+    vstat('⏳ 麥克風重新啟動…');
+    recStart();
+  };
+  return r;
+}
+function startRec(){
+  if(!SR){ vstat('這個瀏覽器不支援語音辨識，請改用點選（建議 Android Chrome）', true); return; }
+  stopRec();
+  recWanted = true; recPaused = false;
+  rec = makeRec();
+  recStart();
+}
+// 唸題時關掉麥克風，避免把 App 自己的聲音當成答案
+function pauseRec(){
+  recPaused = true; clearTimeout(numTimer);
+  if(rec && recRunning){ try{ rec.abort(); }catch(e){} }
+  vstat('🔈 唸題中，唸完再回答');
+}
+function resumeRec(){ recPaused = false; recStart(); }
+function stopRec(){
+  recWanted = false; recPaused = false; clearTimeout(numTimer);
+  const r = rec; rec = null; recRunning = false;
+  try{ r && r.abort(); }catch(e){}
+}
+
+/* ---------- session ---------- */
+let S = null, wakeLock = null, raf = 0;
+const LEN_MS = {s60:60000, s120:120000};
+
+function show(id){ ['setup','run','result'].forEach(x => $('#'+x).hidden = (x !== id)); window.scrollTo(0,0); }
+
+function startSession(){
+  const st = readSettings(); savePrefs(st);
+  S = {st, log:[], t0:performance.now(), active:true, cur:null, locked:true, shownAt:0, qStart:0, timer:0, entry:''};
+  show('run'); vstat(st.voiceIn ? '' : '');
+  try{ navigator.wakeLock && navigator.wakeLock.request('screen').then(l => wakeLock = l).catch(()=>{}); }catch(e){}
+  if(st.voiceIn) startRec();
+  beep(true);
+  nextQ();
+  loop();
+}
+
+function resolveMode(m){ return m === 'mix' ? pick(['choice','tf','short']) : m; }
+
+function nextQ(){
+  if(!S || !S.active) return;
+  const st = S.st;
+  if(st.len === 'q20' && S.log.length >= 20) return endSession();
+  if(LEN_MS[st.len] && performance.now() - S.t0 >= LEN_MS[st.len]) return endSession();
+  const type = pick(st.types);
+  S.cur = GEN[type](st.level, resolveMode(st.mode));
+  S.entry = ''; S.qStart = 0;
+  renderQ();
+  S.shownAt = performance.now(); S.locked = false;
+  const begin = () => {
+    if(!S || !S.active) return;
+    if(st.voiceIn) resumeRec();
+    S.qStart = performance.now(); armVoice();
+    if(st.limit){ clearTimeout(S.timer); S.timer = setTimeout(onTimeout, st.limit * 1000); }
+  };
+  if(st.voiceOut){
+    if(st.voiceIn) pauseRec();
+    speak(S.cur.speak || S.cur.prompt, begin);
+  } else begin();
+}
+
+function renderQ(){
+  const q = S.cur;
+  $('#rCount').innerHTML = `${S.log.length + 1}<span>題</span>`;
+  const stage = $('#stage');
+  stage.className = 'stage';
+  stage.innerHTML = q.stage + `<div class="prompt">${esc(q.prompt)}</div>` + (S.st.voiceIn ? '<div class="heard" id="heard"></div>' : '');
+  const pad = $('#pad');
+  if(q.kind === 'bool'){
+    pad.className = 'pad g2';
+    pad.innerHTML = `<button class="tf-y" data-v="1">對 ✓</button><button class="tf-n" data-v="0">錯 ✕</button>`;
+  } else if(q.kind === 'color'){
+    pad.className = 'pad g2';
+    pad.innerHTML = COLORS.map(c => `<button class="sw" data-v="${c.k}"><i style="background:${c.v}"></i>${c.n}</button>`).join('');
+  } else if(q.mode === 'choice'){
+    pad.className = 'pad g2';
+    pad.innerHTML = q.options.map(v => `<button data-v="${v}">${v}</button>`).join('');
+  } else {
+    pad.className = 'pad g3 kp';
+    pad.innerHTML = `<div class="entry" id="entry">&nbsp;</div>` +
+      [1,2,3,4,5,6,7,8,9].map(d => `<button data-k="${d}">${d}</button>`).join('') +
+      `<button data-k="del" aria-label="刪除">⌫</button><button data-k="0">0</button><button class="go" data-k="ok" aria-label="送出">✓</button>`;
+  }
+}
+
+$('#pad').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b || !S || !S.cur) return;
+  const q = S.cur;
+  if(b.dataset.k !== undefined){
+    const k = b.dataset.k;
+    if(k === 'del') S.entry = S.entry.slice(0,-1);
+    else if(k === 'ok'){ if(S.entry !== '') submit(+S.entry, 'tap'); return; }
+    else if(S.entry.length < 4) S.entry += k;
+    $('#entry').innerHTML = S.entry || '&nbsp;';
+    return;
+  }
+  const v = b.dataset.v;
+  if(q.kind === 'bool') submit(v === '1', 'tap');
+  else if(q.kind === 'color') submit(v, 'tap');
+  else submit(+v, 'tap');
+});
+
+function submit(val, via){
+  if(!S || !S.active || S.locked) return;
+  S.locked = true; clearTimeout(S.timer); clearTimeout(numTimer);
+  const now = performance.now();
+  const rt = now - (S.qStart || S.shownAt);
+  const q = S.cur;
+  const ok = val === q.answer;
+  S.log.push({type:q.type, mode:q.mode, label:q.label, answer:fmt(q, q.answer), given:fmt(q, val), ok, rt:Math.round(rt), timeout:false, via});
+  feedback(ok);
+}
+function onTimeout(){
+  if(!S || !S.active || S.locked) return;
+  S.locked = true;
+  const q = S.cur;
+  S.log.push({type:q.type, mode:q.mode, label:q.label, answer:fmt(q, q.answer), given:'', ok:false, rt:S.st.limit*1000, timeout:true, via:''});
+  feedback(false);
+}
+function fmt(q, v){
+  if(q.kind === 'bool') return v ? '對' : '錯';
+  if(q.kind === 'color'){ const c = colorByK(v); return c ? c.n : String(v); }
+  return String(v);
+}
+function feedback(ok){
+  beep(ok);
+  $('#stage').classList.add(ok ? 'ok' : 'bad');
+  setTimeout(nextQ, ok ? 350 : 650);
+}
+
+function loop(){
+  cancelAnimationFrame(raf);
+  const tick = () => {
+    if(!S || !S.active) return;
+    const now = performance.now(), el = now - S.t0, st = S.st;
+    const total = LEN_MS[st.len];
+    const show = total ? Math.max(0, total - el) : el;
+    const sec = total ? Math.ceil(show/1000) : Math.floor(show/1000);
+    $('#rClock').textContent = `${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;
+    let frac = 1;
+    if(st.limit && S.qStart && !S.locked) frac = Math.max(0, 1 - (now - S.qStart)/(st.limit*1000));
+    else if(total) frac = Math.max(0, 1 - el/total);
+    else if(st.len === 'q20') frac = 1 - S.log.length/20;
+    $('#tbar').style.transform = `scaleX(${frac})`;
+    if(total && el >= total && !S.locked){ endSession(); return; }
+    raf = requestAnimationFrame(tick);
+  };
+  raf = requestAnimationFrame(tick);
+}
+
+function endSession(){
+  if(!S || !S.active) return;
+  S.active = false; clearTimeout(S.timer); cancelAnimationFrame(raf);
+  stopRec();
+  try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
+  try{ wakeLock && wakeLock.release(); }catch(e){} wakeLock = null;
+  renderResult();
+  show('result');
+}
+
+/* ---------- results ---------- */
+function summarize(log){
+  const n = log.length, okRows = log.filter(r => r.ok);
+  const acc = n ? okRows.length / n : 0;
+  const rt = okRows.length ? okRows.reduce((s,r) => s + r.rt, 0) / okRows.length : null;
+  return {n, acc, rt, to: log.filter(r => r.timeout).length};
+}
+function pct(x){ return Math.round(x*100) + '%'; }
+function secs(ms){ return ms == null ? '–' : (ms/1000).toFixed(2); }
+
+function renderResult(){
+  const {st, log} = S;
+  const sm = summarize(log);
+  $('#resTitle').textContent = st.name ? `${st.name} 的結果` : '本次結果';
+  $('#resMeta').textContent = `${st.types.map(t => TYPE_NAME[t]).join('＋')}・難度 ${st.level}・` +
+    `${st.mode === 'mix' ? '隨機作答' : MODE_NAME[st.mode] + '題'}・時限 ${st.limit ? st.limit + ' 秒' : '不限'}`;
+  $('#kAcc').textContent = sm.n ? pct(sm.acc) : '–';
+  $('#kRt').textContent = secs(sm.rt);
+  $('#kN').textContent = sm.n;
+  $('#kTo').textContent = sm.to;
+  const types = [...new Set(log.map(r => r.type))];
+  $('#byType').innerHTML = '<tr><th>題型</th><th>題數</th><th>正確率</th><th>平均反應(秒)</th></tr>' +
+    types.map(t => { const s = summarize(log.filter(r => r.type === t)); return `<tr><td>${TYPE_NAME[t]}</td><td>${s.n}</td><td>${pct(s.acc)}</td><td>${secs(s.rt)}</td></tr>`; }).join('');
+  $('#detail').innerHTML = '<tr><th>#</th><th>題目</th><th>正解</th><th>作答</th><th>秒</th><th>方式</th></tr>' +
+    log.map((r,i) => `<tr><td>${i+1}</td><td>${esc(r.label)}</td><td>${esc(r.answer)}</td><td class="${r.ok?'y':'n'}">${r.timeout ? '逾時' : esc(r.given)}</td><td>${secs(r.rt)}</td><td>${r.via === 'voice' ? '語音' : r.via === 'tap' ? '點選' : ''}</td></tr>`).join('');
+  $('#csvBox').hidden = true;
+  if(sm.n){
+    let h = []; try{ h = JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); }catch(e){}
+    h.unshift({d:new Date().toISOString(), name:st.name, types:st.types, level:st.level, n:sm.n, acc:sm.acc, rt:sm.rt});
+    try{ localStorage.setItem(HIST_KEY, JSON.stringify(h.slice(0,30))); }catch(e){}
+  }
+  renderHist();
+}
+
+function toCSV(){
+  const head = ['no','athlete','type','mode','question','answer','given','correct','rt_ms','timeout','via'];
+  const q = v => `"${String(v).replace(/"/g,'""')}"`;
+  return [head.join(',')].concat(S.log.map((r,i) => [i+1, S.st.name, r.type, r.mode, r.label, r.answer, r.given, r.ok?1:0, r.rt, r.timeout?1:0, r.via].map(q).join(','))).join('\n');
+}
+$('#csvBtn').addEventListener('click', () => {
+  const text = toCSV(), box = $('#csvBox'), btn = $('#csvBtn');
+  const fallback = () => { box.hidden = false; box.value = text; box.focus(); box.select(); btn.textContent = '已選取，請手動複製'; };
+  try{
+    navigator.clipboard.writeText(text).then(() => { btn.textContent = '已複製'; setTimeout(() => btn.textContent = '複製 CSV（貼到試算表）', 1800); }, fallback);
+  }catch(e){ fallback(); }
+});
+
+function readHist(){ try{ return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); }catch(e){ return []; } }
+function writeHist(h){ try{ localStorage.setItem(HIST_KEY, JSON.stringify(h)); }catch(e){} }
+function renderHist(){
+  const h = readHist();
+  const el = $('#hist');
+  $('#clearHist').hidden = !h.length;
+  if(!h.length){ el.innerHTML = '<p class="note" style="padding-top:10px">還沒有紀錄。完成一輪訓練後會出現在這裡。</p>'; return; }
+  el.innerHTML = h.map(r => {
+    const d = new Date(r.d);
+    const when = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    return `<div class="h"><div class="meta"><b style="color:var(--ink);font-weight:500">${esc(r.name || '未命名')}</b>　${when}<br>${r.types.map(t => TYPE_NAME[t]).join('＋')}・難度${r.level}・${r.n}題</div><div class="num">${pct(r.acc)}</div><div class="num">${secs(r.rt)}s</div><button class="del" data-del="${esc(r.d)}" aria-label="刪除這筆紀錄">✕</button></div>`;
+  }).join('');
+}
+$('#hist').addEventListener('click', e => {
+  const b = e.target.closest('[data-del]'); if(!b) return;
+  writeHist(readHist().filter(r => r.d !== b.dataset.del));
+  renderHist();
+});
+let clearArmTimer = 0;
+$('#clearHist').addEventListener('click', () => {
+  const btn = $('#clearHist');
+  const reset = () => { clearTimeout(clearArmTimer); btn.classList.remove('arm'); btn.textContent = '清除全部'; };
+  if(!btn.classList.contains('arm')){
+    btn.classList.add('arm'); btn.textContent = '再按一次確認清除';
+    clearArmTimer = setTimeout(reset, 3000);
+    return;
+  }
+  reset(); writeHist([]); renderHist();
+});
+
+/* ---------- wiring ---------- */
+$('#startBtn').addEventListener('click', startSession);
+$('#stopBtn').addEventListener('click', endSession);
+$('#againBtn').addEventListener('click', startSession);
+$('#backBtn').addEventListener('click', () => show('setup'));
+document.querySelectorAll('input[name=level]').forEach(i => i.addEventListener('change', updateLevelNote));
+function updateVoiceNote(){
+  const n = $('#voiceNote');
+  if($('#voiceIn').checked && !SR){ n.textContent = '這個瀏覽器不支援語音辨識。Android 請用 Chrome；iPhone 請用 Safari。'; n.className = 'note warn'; }
+  else if($('#voiceIn').checked){ n.textContent = '第一次使用會詢問麥克風權限。健身房噪音大時辨識率會下降。'; n.className = 'note'; }
+  else { n.textContent = ''; n.className = 'note'; }
+}
+$('#voiceIn').addEventListener('change', updateVoiceNote);
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible' && S && S.active && navigator.wakeLock){
+    navigator.wakeLock.request('screen').then(l => wakeLock = l).catch(()=>{});
+  }
+});
+loadPrefs(); updateLevelNote(); updateVoiceNote(); renderHist();
+</script>
