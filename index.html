@@ -91,19 +91,19 @@ header.top p{margin:6px 0 0;color:var(--muted);font-size:14px}
 .big{font-family:var(--f-display);font-weight:700;font-size:clamp(56px,17vw,150px);line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
 .word{font-weight:900;font-size:clamp(96px,32vw,220px);line-height:1}
 .field{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:min(100%,560px)}
-.field svg{width:clamp(44px,13vw,84px);height:clamp(44px,13vw,84px)}
+.field svg{width:clamp(36px,min(13vw,6vh),84px);height:clamp(36px,min(13vw,6vh),84px)}
 .prompt{font-size:clamp(32px,9.5vw,64px);font-weight:900;line-height:1.25;text-align:center;text-wrap:balance}
 .heard{position:absolute;left:12px;right:12px;bottom:10px;text-align:center;font-size:13px;color:var(--stage-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pad{display:grid;gap:10px}
 .pad.g2{grid-template-columns:1fr 1fr}
 .pad.g3{grid-template-columns:repeat(3,1fr)}
-.pad button{min-height:68px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);font-family:var(--f-display);font-weight:700;font-size:34px;font-variant-numeric:tabular-nums}
+.pad button{min-height:clamp(84px,12vh,130px);border:1.5px solid var(--line);border-radius:14px;background:var(--surface);font-family:var(--f-display);font-weight:700;font-size:34px;font-variant-numeric:tabular-nums}
 .pad button:active{transform:scale(.97)}
-.pad.kp button{min-height:56px;font-size:28px}
-.pad .sw{display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--f-body);font-size:24px}
+.pad.kp button{min-height:clamp(62px,8.6vh,92px);font-size:36px}
+.pad .sw{display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--f-body);font-size:34px;font-weight:900}
 .pad .sw i{width:26px;height:26px;border-radius:50%;flex:none}
-.pad .tf-y{background:var(--ok);color:#fff;border-color:transparent;font-family:var(--f-body);font-size:30px}
-.pad .tf-n{background:var(--bad);color:#fff;border-color:transparent;font-family:var(--f-body);font-size:30px}
+.pad .tf-y{background:var(--ok);color:#fff;border-color:transparent;font-family:var(--f-body);font-size:38px}
+.pad .tf-n{background:var(--bad);color:#fff;border-color:transparent;font-family:var(--f-body);font-size:38px}
 .pad .go{background:var(--accent);color:var(--accent-ink);border-color:transparent}
 .entry{grid-column:1/-1;min-height:48px;display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-size:36px;font-weight:700;border-bottom:2px solid var(--line);font-variant-numeric:tabular-nums}
 .vstat{text-align:center;font-size:13px;color:var(--muted);min-height:20px}
@@ -150,12 +150,11 @@ textarea.csv{width:100%;min-height:120px;font:12px ui-monospace,monospace;border
   </div>
 
   <div class="group">
-    <div class="label">作答方式</div>
-    <div class="chips">
-      <label class="chip"><input type="radio" name="mode" id="m-choice" value="choice" checked><span>選擇題</span></label>
-      <label class="chip"><input type="radio" name="mode" id="m-tf" value="tf"><span>是非題</span></label>
-      <label class="chip"><input type="radio" name="mode" id="m-short" value="short"><span>簡答題</span></label>
-      <label class="chip"><input type="radio" name="mode" id="m-mix" value="mix"><span>隨機</span></label>
+    <div class="label">作答方式（可複選，多選＝隨機切換）</div>
+    <div class="chips" id="modes">
+      <label class="chip"><input type="checkbox" id="m-choice" value="choice" checked><span>選擇題</span></label>
+      <label class="chip"><input type="checkbox" id="m-tf" value="tf"><span>是非題</span></label>
+      <label class="chip"><input type="checkbox" id="m-short" value="short"><span>簡答題</span></label>
     </div>
   </div>
 
@@ -285,18 +284,36 @@ function numOptions(ans){
   let x = ans + 1; while(set.size < 4){ set.add(x++); }
   return shuffle([...set]);
 }
-/* Math distractors share the answer's last digit (offsets of ±10/20/30),
-   so matching the units digit can't single out the answer: the tens/hundreds
-   (including carries) must actually be computed. Level 1 keeps near values. */
-function mathOptions(ans, level){
-  if(level === 1) return numOptions(ans);
-  const offs = shuffle([-30,-20,-10,10,20,30].filter(o => ans + o >= 0));
-  return shuffle([ans, ...offs.slice(0,3).map(o => ans + o)]);
+/* 數學干擾選項：2×2 格子。正解 ans、ans+t（十位不同）、ans+u（個位不同）、ans+t+u（都不同）。
+   每個位數上，正解的數字都至少和另一個選項相同，所以只看個位或只看十位都選不出來，
+   必須兩個位數（含進位）都算對。四個選項構成對稱的長方形，從選項本身也看不出哪個是正解。 */
+function digitsPaired(opts, ans){
+  for(let pos = 1; pos <= 100; pos *= 10){
+    const dig = n => Math.floor(n / pos) % 10;
+    if(opts.filter(o => dig(o) === dig(ans)).length < 2) return false;
+  }
+  return true;
 }
+function gridDistractors(ans){
+  for(let tries = 0; tries < 20; tries++){
+    const d = ans % 10, us = [];
+    if(d <= 7) us.push(1, 2);
+    if(d >= 2) us.push(-1, -2);
+    const u = pick(us);
+    const t = pick(ans >= 10 ? [10, -10] : [10]);
+    const opts = [ans, ans + t, ans + u, ans + t + u];
+    if(digitsPaired(opts, ans)) return opts.slice(1);
+  }
+  return null;
+}
+function mathOptions(ans, level){
+  const g = level === 1 ? null : gridDistractors(ans);
+  return g ? shuffle([ans, ...g]) : numOptions(ans);
+}
+// 是非題的錯誤答案：只錯個位、只錯十位、兩個都錯，三種機率相同
 function mathWrong(ans, level){
-  if(level === 1 || Math.random() < 0.25) return wrongNear(ans);
-  const offs = [-20,-10,10,20].filter(o => ans + o >= 0);
-  return ans + pick(offs);
+  const g = level === 1 ? null : gridDistractors(ans);
+  return g ? pick(g) : wrongNear(ans);
 }
 function wrongNear(ans){
   let v = ans + pick([-1,1]) * rnd(1,3);
@@ -373,7 +390,7 @@ function readSettings(){
   return {
     name: $('#athlete').value.trim(),
     types: types.length ? types : ['math'],
-    mode: document.querySelector('input[name=mode]:checked').value,
+    modes: (m => m.length ? m : ['choice'])([...document.querySelectorAll('#modes input:checked')].map(i => i.value)),
     level: +document.querySelector('input[name=level]:checked').value,
     limit: +document.querySelector('input[name=limit]:checked').value,
     len: document.querySelector('input[name=len]:checked').value,
@@ -389,7 +406,10 @@ function loadPrefs(){
   $('#athlete').value = s.name || '';
   document.querySelectorAll('#types input').forEach(i => i.checked = s.types.includes(i.value));
   const set = (name, v) => { const el = document.querySelector(`input[name=${name}][value="${v}"]`); if(el) el.checked = true; };
-  set('mode', s.mode); set('level', s.level); set('limit', s.limit); set('len', s.len);
+  // 舊版設定只存一個 mode（mix＝全選），這裡轉成新版的多選
+  const modes = s.modes || (s.mode === 'mix' ? ['choice','tf','short'] : [s.mode || 'choice']);
+  document.querySelectorAll('#modes input').forEach(i => i.checked = modes.includes(i.value));
+  set('level', s.level); set('limit', s.limit); set('len', s.len);
   $('#voiceIn').checked = !!s.voiceIn; $('#voiceOut').checked = !!s.voiceOut;
 }
 function updateLevelNote(){ $('#levelNote').textContent = LEVEL_NOTE[document.querySelector('input[name=level]:checked').value]; }
@@ -572,7 +592,7 @@ function startSession(){
   loop();
 }
 
-function resolveMode(m){ return m === 'mix' ? pick(['choice','tf','short']) : m; }
+
 
 function nextQ(){
   if(!S || !S.active) return;
@@ -580,7 +600,7 @@ function nextQ(){
   if(st.len === 'q20' && S.log.length >= 20) return endSession();
   if(LEN_MS[st.len] && performance.now() - S.t0 >= LEN_MS[st.len]) return endSession();
   const type = pick(st.types);
-  S.cur = GEN[type](st.level, resolveMode(st.mode));
+  S.cur = GEN[type](st.level, pick(st.modes));
   S.entry = ''; S.qStart = 0;
   renderQ();
   S.shownAt = performance.now(); S.locked = false;
@@ -608,7 +628,11 @@ function renderQ(){
     pad.innerHTML = `<button class="tf-y" data-v="1">對 ✓</button><button class="tf-n" data-v="0">錯 ✕</button>`;
   } else if(q.kind === 'color'){
     pad.className = 'pad g2';
-    pad.innerHTML = COLORS.map(c => `<button class="sw" data-v="${c.k}"><i style="background:${c.v}"></i>${c.n}</button>`).join('');
+    // 難度 1 保留色點方便入門；難度 2、3 只有文字，不能靠「顏色對顏色」配對作答
+    const dot = S.st.level === 1;
+    // 難度 3：每題打亂按鈕位置，不能靠記住「紅色在左上」反射作答
+    const order = S.st.level === 3 ? shuffle([...COLORS]) : COLORS;
+    pad.innerHTML = order.map(c => `<button class="sw" data-v="${c.k}">${dot ? `<i style="background:${c.v}"></i>` : ''}${c.n}</button>`).join('');
   } else if(q.mode === 'choice'){
     pad.className = 'pad g2';
     pad.innerHTML = q.options.map(v => `<button data-v="${v}">${v}</button>`).join('');
@@ -710,7 +734,7 @@ function renderResult(){
   const sm = summarize(log);
   $('#resTitle').textContent = st.name ? `${st.name} 的結果` : '本次結果';
   $('#resMeta').textContent = `${st.types.map(t => TYPE_NAME[t]).join('＋')}・難度 ${st.level}・` +
-    `${st.mode === 'mix' ? '隨機作答' : MODE_NAME[st.mode] + '題'}・時限 ${st.limit ? st.limit + ' 秒' : '不限'}`;
+    `${st.modes.map(m => MODE_NAME[m]).join('＋')}題・時限 ${st.limit ? st.limit + ' 秒' : '不限'}`;
   $('#kAcc').textContent = sm.n ? pct(sm.acc) : '–';
   $('#kRt').textContent = secs(sm.rt);
   $('#kN').textContent = sm.n;

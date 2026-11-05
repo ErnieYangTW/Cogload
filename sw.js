@@ -1,6 +1,6 @@
 // 離線快取：App 本體先存在手機裡，沒網路也能開。
 // 改版時把 VERSION 加 1，手機下次開啟就會換成新版。
-const VERSION = 'v2';
+const VERSION = 'v4';
 const CACHE = 'cogload-' + VERSION;
 const SHELL = [
   './',
