@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>認知負荷訓練</title>
-<meta name="description" content="運動中加入認知負荷的答題工具：數學、顏色干擾、圖形計數，點選或語音作答。">
+<meta name="description" content="運動中加入認知負荷的答題工具：數學、顏色干擾、圖形計數，點選或手勢作答。">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#151a21">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -75,7 +75,7 @@ header.top p{margin:6px 0 0;color:var(--muted);font-size:14px}
 .num{font-family:var(--f-display);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums}
 
 /* RUN */
-#run{position:fixed;inset:0;background:var(--bg);display:grid;grid-template-rows:auto auto 1fr auto auto;gap:10px;
+#run{position:fixed;inset:0;background:var(--bg);display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;grid-template-columns:minmax(0,1fr);gap:10px;
   padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));
   padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));z-index:5}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -84,11 +84,14 @@ header.top p{margin:6px 0 0;color:var(--muted);font-size:14px}
 .stop{min-height:40px;padding:0 16px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font-weight:700}
 .timebar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
 .timebar i{display:block;height:100%;width:100%;background:var(--accent);transform-origin:left;transition:none}
-.stage{background:var(--stage);color:var(--stage-ink);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;min-height:0;overflow:hidden;position:relative;transition:box-shadow .15s}
+.stagewrap{min-height:0;display:grid;border-radius:18px}
+.stagewrap.g-wait{box-shadow:0 0 0 5px var(--c-yellow)}
+.stagewrap.g-lost{box-shadow:0 0 0 5px var(--accent)}
+.stage{container-type:size;background:var(--stage);color:var(--stage-ink);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(var(--fit,1) * 3cqh);padding:12px;min-height:0;min-width:0;overflow:hidden;position:relative;transition:box-shadow .15s}
 .stage.ok{box-shadow:inset 0 0 0 6px var(--ok)}
 .stage.bad{box-shadow:inset 0 0 0 6px var(--bad)}
-.stage .rule{font-size:clamp(24px,min(7vw,5vh),44px);letter-spacing:.1em;color:var(--stage);background:var(--stage-ink);padding:2px 16px;border-radius:8px;font-weight:900}
-.big{font-family:var(--f-display);font-weight:700;font-size:clamp(56px,17vw,150px);line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stage .rule{font-size:calc(var(--fit,1) * 9cqh);letter-spacing:.1em;color:var(--stage);background:var(--stage-ink);padding:2px 16px;border-radius:8px;font-weight:900}
+.big{font-family:var(--f-display);font-weight:700;font-size:min(calc(var(--fit,1) * 34cqh), var(--cap, 9999px));line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
 /* gesture */
 .gopts{display:flex;flex-direction:column;gap:12px;padding:12px 14px;border:1.5px solid var(--line);border-top:0;border-radius:0 0 12px 12px;margin-top:-10px;background:var(--surface)}
 .gopts .sub{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--muted)}
@@ -98,21 +101,23 @@ header.top p{margin:6px 0 0;color:var(--muted);font-size:14px}
 .gind span{min-height:56px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1.5px solid var(--line);font-weight:900;font-size:20px;color:var(--muted)}
 .gind span.on-l{background:var(--ok);border-color:var(--ok);color:#fff}
 .gind span.on-r{background:var(--bad);border-color:var(--bad);color:#fff}
-.gbox{position:absolute;z-index:6;width:clamp(96px,26vw,200px);aspect-ratio:4/3;border-radius:10px;overflow:hidden;border:3px solid var(--bad);background:var(--stage);
-  top:calc(86px + env(safe-area-inset-top,0px));right:calc(20px + env(safe-area-inset-right,0px))}
+.gbox{position:relative;height:64px;aspect-ratio:4/3;border-radius:8px;overflow:hidden;border:3px solid var(--accent);background:var(--stage);flex:none}
 .gbox.ok{border-color:var(--ok)}
 .gbox.wait{border-color:var(--c-yellow)}
 .gbox canvas{width:100%;height:100%;display:block}
 .gbox b{position:absolute;left:0;right:0;bottom:0;font-size:11px;text-align:center;background:rgba(0,0,0,.6);color:#fff;padding:1px 0}
-.pad .tf-y small,.pad .tf-n small{display:block;font-size:.5em;font-weight:700;opacity:.9}
+.pad button small{display:block;font-family:var(--f-body);font-size:max(14px,.42em);font-weight:700;opacity:.85;line-height:1.2}
+.pad button{box-shadow:inset 0 calc(var(--p,0) * -400px) 0 rgba(127,127,127,.35)}
 .pad .tf-y,.pad .tf-n{box-shadow:inset 0 calc(var(--p,0) * -400px) 0 rgba(255,255,255,.35)}
+.pad.g3x{grid-template-columns:repeat(3,1fr)}
+.pad .sw.col{flex-direction:column;gap:2px}
 .gmsg{font-size:clamp(20px,6vw,32px);font-weight:900;text-align:center;text-wrap:balance}
 .gmsg small{display:block;font-size:.55em;font-weight:500;color:var(--stage-dim);margin-top:8px}
-.count{font-family:var(--f-display);font-weight:700;font-size:clamp(140px,48vw,300px);line-height:1;font-variant-numeric:tabular-nums}
-.word{font-weight:900;font-size:clamp(96px,32vw,220px);line-height:1}
-.field{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:min(100%,560px)}
-.field svg{width:clamp(36px,min(13vw,6vh),84px);height:clamp(36px,min(13vw,6vh),84px)}
-.prompt{font-size:clamp(32px,9.5vw,64px);font-weight:900;line-height:1.25;text-align:center;text-wrap:balance}
+.count{font-family:var(--f-display);font-weight:700;font-size:min(calc(var(--fit,1) * 62cqh), var(--cap, 9999px));line-height:1;font-variant-numeric:tabular-nums}
+.word{font-weight:900;font-size:min(calc(var(--fit,1) * 50cqh), var(--cap, 9999px));line-height:1}
+.field{display:flex;flex-wrap:wrap;justify-content:center;gap:calc(var(--fit,1) * 2cqh);max-width:100%}
+.field svg{width:calc(var(--fit,1) * 17cqh);height:calc(var(--fit,1) * 17cqh)}
+.prompt{font-size:calc(var(--fit,1) * 13cqh);font-weight:900;line-height:1.2;text-align:center;text-wrap:balance;max-width:100%}
 .pad{display:grid;gap:8px}
 .pad.g2{grid-template-columns:1fr 1fr}
 .pad.g3{grid-template-columns:repeat(3,1fr)}
@@ -124,6 +129,16 @@ header.top p{margin:6px 0 0;color:var(--muted);font-size:14px}
 .pad .tf-y{background:var(--ok);color:#fff;border-color:transparent;font-family:var(--f-body);font-size:38px}
 .pad .tf-n{background:var(--bad);color:#fff;border-color:transparent;font-family:var(--f-body);font-size:38px}
 .pad .go{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+/* 橫向：題目在左、作答區在右，鏡頭可以拍到更寬的範圍 */
+@media (orientation: landscape){
+  #run{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr);column-gap:12px}
+  #run .bar,#run .timebar{grid-column:1 / -1}
+  #run .stagewrap{grid-column:1;grid-row:3}
+  #run .pad{grid-column:2;grid-row:3;grid-auto-rows:minmax(0,1fr);align-content:stretch;min-height:0}
+  #run .pad button,#run .pad.kp button{min-height:0}
+  #run .pad .entry{min-height:0}
+  .gbox{height:48px}
+}
 .entry{grid-column:1/-1;min-height:48px;display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-size:36px;font-weight:700;border-bottom:2px solid var(--line);font-variant-numeric:tabular-nums}
 
 /* RESULT */
@@ -149,7 +164,7 @@ textarea.csv{width:100%;min-height:120px;font:12px ui-monospace,monospace;border
 <section id="setup" class="wrap">
   <header class="top">
     <h1>認知負荷訓練</h1>
-    <p>動作中同時答題。選手自己點選；手不方便時開語音作答。</p>
+    <p>動作中同時答題。選手點選作答；手不方便碰螢幕時，開啟手勢作答用舉手回答。</p>
   </header>
 
   <div class="group">
@@ -173,12 +188,12 @@ textarea.csv{width:100%;min-height:120px;font:12px ui-monospace,monospace;border
       <label class="chip"><input type="checkbox" id="m-tf" value="tf"><span>是非題</span></label>
       <label class="chip"><input type="checkbox" id="m-short" value="short"><span>簡答題</span></label>
     </div>
-    <p class="note" id="modeNote" hidden>手勢作答開啟中：只出是非題。</p>
+    <p class="note" id="modeNote" hidden>手勢作答開啟中：不出簡答題。選擇題改成三選一（左手、雙手、右手），數學題一律出是非題。</p>
   </div>
 
   <div class="group">
     <div class="label">手勢作答</div>
-    <label class="toggle" for="gesture"><span><b>舉手回答</b><small>手腕舉到肩膀高度以上：左手＝對、右手＝錯。手機立在 2–3 公尺外，前鏡頭要拍到上半身</small></span><input type="checkbox" id="gesture"></label>
+    <label class="toggle" for="gesture"><span><b>舉手回答</b><small>手腕舉到肩膀高度以上。是非題：左手＝對、右手＝錯。三選一：左手、雙手、右手對應左、中、右。手機立在 2–3 公尺外，可以橫放</small></span><input type="checkbox" id="gesture"></label>
     <div class="gopts" id="gopts" hidden>
       <div class="sub">舉手要停留多久才算</div>
       <div class="chips">
@@ -244,12 +259,12 @@ textarea.csv{width:100%;min-height:120px;font:12px ui-monospace,monospace;border
 <section id="run" hidden>
   <div class="bar">
     <div class="stat" id="rCount">1<span>題</span></div>
+    <div class="gbox" id="gbox" hidden><canvas id="gboxCanvas" width="320" height="240"></canvas><b id="gboxText"></b></div>
     <div class="stat" id="rClock">0:00</div>
     <button class="stop" id="stopBtn">停止</button>
   </div>
   <div class="timebar"><i id="tbar"></i></div>
-  <div class="gbox" id="gbox" hidden><canvas id="gboxCanvas" width="320" height="240"></canvas><b id="gboxText"></b></div>
-  <div class="stage" id="stage"></div>
+  <div class="stagewrap" id="stagewrap"><div class="stage" id="stage"></div></div>
   <div class="pad" id="pad"></div>
 </section>
 
@@ -311,15 +326,15 @@ const LEVEL_NOTE = {
 };
 
 /* ---------- question generators ---------- */
-function numOptions(ans){
+function numOptions(ans, n = 4){
   const set = new Set([ans]);
   const spread = Math.max(2, Math.ceil(ans*0.15)+1);
   let guard = 0;
-  while(set.size < 4 && guard++ < 200){
+  while(set.size < n && guard++ < 200){
     const d = ans + pick([-1,1]) * rnd(1, spread);
     if(d >= 0) set.add(d);
   }
-  let x = ans + 1; while(set.size < 4){ set.add(x++); }
+  let x = ans + 1; while(set.size < n){ set.add(x++); }
   return shuffle([...set]);
 }
 /* 數學干擾選項：2×2 格子。正解 ans、ans+t（十位不同）、ans+u（個位不同）、ans+t+u（都不同）。
@@ -359,7 +374,9 @@ function wrongNear(ans){
   return v;
 }
 
-function genMath(level, mode){
+function genMath(level, mode, three){
+  // 三個選項無法讓每個位數都「至少兩個選項相同」，正解會從選項結構被猜出來，所以手勢模式的數學一律出是非題
+  if(three && mode === 'choice') mode = 'tf';
   let a, b, op;
   if(level === 1){ op = pick(['+','−']); a = rnd(1,9); b = rnd(1,9); }
   else if(level === 2){ op = pick(['+','−','×']); if(op==='×'){ a=rnd(2,9); b=rnd(2,9); } else { a=rnd(10,50); b=rnd(2,19); } }
@@ -372,13 +389,13 @@ function genMath(level, mode){
     const shown = truth ? ans : mathWrong(ans, level);
     return {type:'math', mode, kind:'bool', answer:truth,
       stage:`<div class="big">${a} ${op} ${b} = ${shown}</div>`,
-      prompt:'算式對嗎？', speak:`${a}${say}${b}，等於${shown}，對還是錯`, label:`${a}${op}${b}=${shown}`};
+      prompt:'算式對嗎？', speak:`${a}${say}${b}，等於${shown}`, label:`${a}${op}${b}=${shown}`};
   }
   return {type:'math', mode, kind:'num', answer:ans, options: mode==='choice' ? mathOptions(ans, level) : null,
     stage:`<div class="big">${a} ${op} ${b}</div>`, prompt:'答案是？', speak:`${a}${say}${b}`, label:`${a}${op}${b}`};
 }
 
-function genStroop(level, mode){
+function genStroop(level, mode, three){
   const word = pick(COLORS);
   const pCong = level===1 ? 0.4 : level===2 ? 0.2 : 0.15;
   const ink = Math.random() < pCong ? word : pick(COLORS.filter(c => c !== word));
@@ -394,11 +411,12 @@ function genStroop(level, mode){
       prompt: rule==='ink' ? `字的顏色是「${shown.n}」？` : `這個字是「${shown.n}」？`,
       speak: null, label: `${label}・問${shown.n}`};
   }
-  return {type:'stroop', mode, kind:'color', answer:target.k, stage,
+  const options = three ? shuffle([target.k, ...shuffle(COLORS.filter(c => c !== target)).slice(0,2).map(c => c.k)]) : null;
+  return {type:'stroop', mode, kind:'color', answer:target.k, options, stage,
     prompt: rule==='ink' ? '字的顏色是？' : '這是什麼字？', speak:null, label};
 }
 
-function genCount(level, mode){
+function genCount(level, mode, three){
   const n = level===1 ? rnd(5,7) : level===2 ? rnd(7,10) : rnd(9,13);
   const items = [];
   for(let i=0;i<n;i++) items.push({s:pick(SHAPES), c: level===1 ? null : pick(COLORS)});
@@ -417,7 +435,7 @@ function genCount(level, mode){
     return {type:'count', mode, kind:'bool', answer:truth, stage,
       prompt:`${what}有 ${s2} 個？`, speak:null, label:`${what}${count}個・問${s2}`};
   }
-  return {type:'count', mode, kind:'num', answer:count, options: mode==='choice' ? numOptions(count) : null,
+  return {type:'count', mode, kind:'num', answer:count, options: mode==='choice' ? numOptions(count, three ? 3 : 4) : null,
     stage, prompt:`${what}有幾個？`, speak:null, label:`${what}有${count}個`};
 }
 const GEN = {math:genMath, stroop:genStroop, count:genCount};
@@ -428,7 +446,7 @@ function readSettings(){
   return {
     name: $('#athlete').value.trim(),
     types: types.length ? types : ['math'],
-    modes: $('#gesture').checked ? ['tf'] : (m => m.length ? m : ['choice'])([...document.querySelectorAll('#modes input:checked')].map(i => i.value)),
+    modes: (m => m.length ? m : [$('#gesture').checked ? 'tf' : 'choice'])([...document.querySelectorAll('#modes input:checked')].map(i => i.value).filter(v => !($('#gesture').checked && v === 'short'))),
     gesture: $('#gesture').checked,
     hold: +document.querySelector('input[name=hold]:checked').value,
     gswap: $('#gswap').checked,
@@ -480,7 +498,7 @@ function speak(text, done){
   try{
     synth.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'zh-TW'; u.rate = 1.15;
+    u.lang = 'zh-TW'; u.rate = 1.1; u.volume = 1; u.pitch = 1;
     u.onend = () => setTimeout(fin, 250);   // 等喇叭餘音散掉再開麥克風
     u.onerror = fin;
     synth.speak(u);
@@ -566,8 +584,8 @@ function gestureMachine(){
   let side = null, since = 0, lastUp = 0, needRelease = true, downSince = 0;
   return {
     reset(){ side = null; needRelease = true; downSince = 0; },
-    step(g, now, holdMs){
-      const one = g.left !== g.right ? (g.left ? 'left' : 'right') : null;
+    step(g, now, holdMs, allowBoth){
+      const one = g.left && g.right ? (allowBoth ? 'both' : null) : g.left ? 'left' : g.right ? 'right' : null;
       const none = !g.left && !g.right;
       if(needRelease){
         if(none && g.present){ if(!downSince) downSince = now; if(now - downSince >= 150) needRelease = false; }
@@ -599,6 +617,11 @@ function gUse(where){
 }
 function gDraw(pose, g){
   const c = G.target, v = G.video; if(!c || !v) return;
+  const vw = v.videoWidth, vh = v.videoHeight;
+  if(vw && vh){
+    const want = Math.round(c.width * vh / vw);
+    if(Math.abs(c.height - want) > 1){ c.height = want; c.style.aspectRatio = `${vw} / ${vh}`; if(c.parentElement && c.parentElement.id === 'gbox') c.parentElement.style.aspectRatio = `${vw} / ${vh}`; }
+  }
   const ctx = c.getContext('2d'), w = c.width, h = c.height;
   ctx.save();
   ctx.translate(w, 0); ctx.scale(-1, 1);   // 像照鏡子一樣顯示：舉左手，畫面左邊的手舉起
@@ -623,16 +646,26 @@ function onTestPose(g){
     (g.left && g.right) ? '雙手同時舉起不算回答。' : '黃色虛線是肩膀高度，手腕要舉到線以上。';
 }
 function onRunPose(g, now){
-  const r = (S && S.active && !S.counting && !S.locked && S.cur && S.qStart && S.cur.kind === 'bool')
-    ? GM.step(g, now, S.st.hold) : {state: g.present ? 'idle' : 'lost', progress:0};
+  const q = S && S.cur;
+  const three = !!(q && q.options && q.options.length === 3);
+  const answerable = S && S.active && !S.counting && !S.locked && q && (q.kind === 'bool' || three);
+  const r = answerable ? GM.step(g, now, S.st.hold, three) : {state: g.present ? 'idle' : 'lost', progress:0};
   const box = $('#gbox'), txt = $('#gboxText');
   const st = g.present ? r.state : 'lost';
   box.className = 'gbox' + (st === 'lost' ? '' : st === 'release' ? ' wait' : ' ok');
   txt.textContent = st === 'lost' ? '看不到人' : st === 'release' ? '先放下雙手' : st === 'hold' ? '確認中…' : '可以作答';
-  const y = $('#pad .tf-y'), n = $('#pad .tf-n');
-  if(y) y.style.setProperty('--p', r.side === 'left' ? Math.min(1, r.progress) : 0);
-  if(n) n.style.setProperty('--p', r.side === 'right' ? Math.min(1, r.progress) : 0);
-  if(r.state === 'fire') submit(r.side === 'left', 'gesture', r.t0);
+  // 遠處也看得到的狀態：題目區外框黃色＝先放下雙手、橘色＝鏡頭看不到人
+  $('#stagewrap').className = 'stagewrap' + (st === 'lost' ? ' g-lost' : st === 'release' ? ' g-wait' : '');
+  const idx = three ? {left:0, both:1, right:2} : {left:0, right:1};
+  const btns = [...document.querySelectorAll('#pad button')];
+  btns.forEach((b, i) => b.style.setProperty('--p', idx[r.side] === i ? Math.min(1, r.progress) : 0));
+  if(r.state === 'fire'){
+    if(q.kind === 'bool') submit(r.side === 'left', 'gesture', r.t0);
+    else {
+      const v = q.options[idx[r.side]];
+      submit(q.kind === 'color' ? v : +v, 'gesture', r.t0);
+    }
+  }
 }
 
 /* ---------- session ---------- */
@@ -673,6 +706,7 @@ function runCountdown(sess, stage){
       return;
     }
     stage.innerHTML = `<div class="rule">準備</div><div class="count">${n}</div>`;
+    fitStage();
     beep(null);
     n--; sess.cdTimer = setTimeout(tick, 1000);
   };
@@ -687,19 +721,45 @@ function nextQ(){
   if(st.len === 'q20' && S.log.length >= 20) return endSession();
   if(LEN_MS[st.len] && performance.now() - S.t0 >= LEN_MS[st.len]) return endSession();
   const type = pick(st.types);
-  S.cur = GEN[type](st.level, pick(st.modes));
+  S.cur = GEN[type](st.level, pick(st.modes), st.gesture);
   S.entry = ''; S.qStart = 0;
   renderQ();
-  S.shownAt = performance.now(); S.locked = false;
+  // 題目一出現就接受作答（朗讀中也可以），反應時間從題目出現開始算
+  S.shownAt = S.qStart = performance.now(); S.locked = false;
+  if(st.gesture) GM.reset();
+  const q = S.cur;
   const begin = () => {
-    if(!S || !S.active) return;
-    S.qStart = performance.now();
-    if(st.gesture) GM.reset();
+    if(!S || !S.active || S.cur !== q || S.locked) return;
     if(st.limit){ clearTimeout(S.timer); S.timer = setTimeout(onTimeout, st.limit * 1000); }
   };
   if(st.voiceOut) speak(S.cur.speak || S.cur.prompt, begin); else begin();
 }
 
+// 把題目字放到最大：先用最大字級，放不下就逐步縮小，直到題目區裝得下
+function fitStage(){
+  const st = $('#stage');
+  if(!st || $('#run').hidden) return;
+  // 從偏大的字級開始（有空間就放大），放不下再逐步縮小
+  let f = 1.8; st.style.setProperty('--fit', f);
+  const inner = () => st.clientWidth - 24;
+  // 不換行的大字（算式、Stroop 字、倒數）另外設寬度上限，剛好塞滿寬度，不拖累其他文字
+  st.querySelectorAll('.big,.word,.count').forEach(el => {
+    el.style.removeProperty('--cap');
+    const w = el.getBoundingClientRect().width, fs = parseFloat(getComputedStyle(el).fontSize);
+    if(w > 0 && fs > 0) el.style.setProperty('--cap', (inner() * 0.97 * fs / w).toFixed(1) + 'px');
+  });
+  const over = () => st.scrollHeight > st.clientHeight + 1 ||
+    [...st.children].some(el => el.getBoundingClientRect().width > inner() + 1 || el.scrollWidth > el.clientWidth + 1);
+  for(let i = 0; i < 40 && over(); i++){ f *= 0.93; st.style.setProperty('--fit', f.toFixed(3)); }
+  // 數學題的重點是算式：「算式對嗎？」這類固定提示不要比算式大
+  const big = st.querySelector('.big'), pr = st.querySelector('.prompt');
+  if(big && pr){
+    const cap = parseFloat(getComputedStyle(big).fontSize) * 0.55;
+    if(parseFloat(getComputedStyle(pr).fontSize) > cap) pr.style.fontSize = cap.toFixed(1) + 'px';
+  }
+}
+let fitTimer = 0;
+window.addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitStage, 120); });
 function renderQ(){
   const q = S.cur;
   $('#rCount').innerHTML = `${S.log.length + 1}<span>題</span>`;
@@ -707,10 +767,16 @@ function renderQ(){
   stage.className = 'stage';
   stage.innerHTML = q.stage + `<div class="prompt">${esc(q.prompt)}</div>`;
   const pad = $('#pad');
+  const g = S.st.gesture;
+  const HANDS = ['舉左手','舉雙手','舉右手'];
   if(q.kind === 'bool'){
     pad.className = 'pad g2';
-    const g = S.st.gesture;
     pad.innerHTML = `<button class="tf-y" data-v="1">${g ? '<small>舉左手</small>' : ''}對 ✓</button><button class="tf-n" data-v="0">${g ? '<small>舉右手</small>' : ''}錯 ✕</button>`;
+  } else if(q.kind === 'color' && q.options){
+    // 手勢三選一：左手＝左邊、雙手＝中間、右手＝右邊
+    pad.className = 'pad g3x';
+    const dot = S.st.level === 1;
+    pad.innerHTML = q.options.map((k, i) => { const c = colorByK(k); return `<button class="sw col" data-v="${c.k}"><small>${HANDS[i]}</small><span>${dot ? `<i style="background:${c.v};display:inline-block;vertical-align:middle;margin-right:6px"></i>` : ''}${c.n}</span></button>`; }).join('');
   } else if(q.kind === 'color'){
     pad.className = 'pad g2';
     // 難度 1 保留色點方便入門；難度 2、3 只有文字，不能靠「顏色對顏色」配對作答
@@ -718,6 +784,9 @@ function renderQ(){
     // 難度 3：每題打亂按鈕位置，不能靠記住「紅色在左上」反射作答
     const order = S.st.level === 3 ? shuffle([...COLORS]) : COLORS;
     pad.innerHTML = order.map(c => `<button class="sw" data-v="${c.k}">${dot ? `<i style="background:${c.v}"></i>` : ''}${c.n}</button>`).join('');
+  } else if(q.mode === 'choice' && q.options.length === 3){
+    pad.className = 'pad g3x';
+    pad.innerHTML = q.options.map((v, i) => `<button data-v="${v}"><small>${HANDS[i]}</small>${v}</button>`).join('');
   } else if(q.mode === 'choice'){
     pad.className = 'pad g2';
     pad.innerHTML = q.options.map(v => `<button data-v="${v}">${v}</button>`).join('');
@@ -727,6 +796,7 @@ function renderQ(){
       [1,2,3,4,5,6,7,8,9].map(d => `<button data-k="${d}">${d}</button>`).join('') +
       `<button data-k="del" aria-label="刪除">⌫</button><button data-k="0">0</button><button class="go" data-k="ok" aria-label="送出">✓</button>`;
   }
+  fitStage();
 }
 
 $('#pad').addEventListener('click', e => {
@@ -748,6 +818,7 @@ $('#pad').addEventListener('click', e => {
 
 function submit(val, via, t0){
   if(!S || !S.active || S.locked) return;
+  try{ window.speechSynthesis && window.speechSynthesis.speaking && window.speechSynthesis.cancel(); }catch(e){}
   S.locked = true; clearTimeout(S.timer);
   const now = performance.now();
   // 手勢作答：反應時間算到「手舉過肩」的那一刻，不含停留確認的時間
@@ -798,7 +869,7 @@ function loop(){
 function endSession(){
   if(!S || !S.active) return;
   S.active = false; clearTimeout(S.timer); clearTimeout(S.cdTimer); cancelAnimationFrame(raf);
-  if(S.st.gesture){ gStop(); $('#gbox').hidden = true; }
+  if(S.st.gesture){ gStop(); $('#gbox').hidden = true; $('#stagewrap').className = 'stagewrap'; }
   if(S.counting){
     try{ wakeLock && wakeLock.release(); }catch(e){} wakeLock = null;
     show('setup'); return;
@@ -902,8 +973,9 @@ function syncGestureUI(){
   const on = $('#gesture').checked;
   $('#gopts').hidden = !on;
   $('#modeNote').hidden = !on;
-  document.querySelectorAll('#modes input').forEach(i => i.disabled = on);
-  $('#modes').style.opacity = on ? .45 : 1;
+  const sh = $('#m-short');
+  sh.disabled = on;
+  sh.closest('.chip').style.opacity = on ? .4 : 1;
   if(!on) closeGestureTest();
 }
 function closeGestureTest(){

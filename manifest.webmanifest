@@ -1,12 +1,12 @@
 {
   "name": "認知負荷訓練",
   "short_name": "認知負荷",
-  "description": "運動中加入認知負荷的答題工具：數學、顏色干擾、圖形計數，點選或語音作答。",
+  "description": "運動中加入認知負荷的答題工具：數學、顏色干擾、圖形計數，點選或手勢作答。",
   "lang": "zh-Hant-TW",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#151a21",
   "theme_color": "#151a21",
   "icons": [
