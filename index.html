@@ -89,25 +89,42 @@ header.top p{margin:6px 0 0;color:var(--muted);font-size:14px}
 .stage.bad{box-shadow:inset 0 0 0 6px var(--bad)}
 .stage .rule{font-size:clamp(24px,min(7vw,5vh),44px);letter-spacing:.1em;color:var(--stage);background:var(--stage-ink);padding:2px 16px;border-radius:8px;font-weight:900}
 .big{font-family:var(--f-display);font-weight:700;font-size:clamp(56px,17vw,150px);line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* gesture */
+.gopts{display:flex;flex-direction:column;gap:12px;padding:12px 14px;border:1.5px solid var(--line);border-top:0;border-radius:0 0 12px 12px;margin-top:-10px;background:var(--surface)}
+.gopts .sub{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--muted)}
+.gtest{display:flex;flex-direction:column;gap:10px}
+.gtest canvas{width:100%;aspect-ratio:4/3;max-width:100%;background:var(--stage);border-radius:12px}
+.gind{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gind span{min-height:56px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1.5px solid var(--line);font-weight:900;font-size:20px;color:var(--muted)}
+.gind span.on-l{background:var(--ok);border-color:var(--ok);color:#fff}
+.gind span.on-r{background:var(--bad);border-color:var(--bad);color:#fff}
+.gbox{position:absolute;z-index:6;width:clamp(96px,26vw,200px);aspect-ratio:4/3;border-radius:10px;overflow:hidden;border:3px solid var(--bad);background:var(--stage);
+  top:calc(86px + env(safe-area-inset-top,0px));right:calc(20px + env(safe-area-inset-right,0px))}
+.gbox.ok{border-color:var(--ok)}
+.gbox.wait{border-color:var(--c-yellow)}
+.gbox canvas{width:100%;height:100%;display:block}
+.gbox b{position:absolute;left:0;right:0;bottom:0;font-size:11px;text-align:center;background:rgba(0,0,0,.6);color:#fff;padding:1px 0}
+.pad .tf-y small,.pad .tf-n small{display:block;font-size:.5em;font-weight:700;opacity:.9}
+.pad .tf-y,.pad .tf-n{box-shadow:inset 0 calc(var(--p,0) * -400px) 0 rgba(255,255,255,.35)}
+.gmsg{font-size:clamp(20px,6vw,32px);font-weight:900;text-align:center;text-wrap:balance}
+.gmsg small{display:block;font-size:.55em;font-weight:500;color:var(--stage-dim);margin-top:8px}
+.count{font-family:var(--f-display);font-weight:700;font-size:clamp(140px,48vw,300px);line-height:1;font-variant-numeric:tabular-nums}
 .word{font-weight:900;font-size:clamp(96px,32vw,220px);line-height:1}
 .field{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:min(100%,560px)}
 .field svg{width:clamp(36px,min(13vw,6vh),84px);height:clamp(36px,min(13vw,6vh),84px)}
 .prompt{font-size:clamp(32px,9.5vw,64px);font-weight:900;line-height:1.25;text-align:center;text-wrap:balance}
-.heard{position:absolute;left:12px;right:12px;bottom:10px;text-align:center;font-size:13px;color:var(--stage-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pad{display:grid;gap:10px}
+.pad{display:grid;gap:8px}
 .pad.g2{grid-template-columns:1fr 1fr}
 .pad.g3{grid-template-columns:repeat(3,1fr)}
-.pad button{min-height:clamp(84px,12vh,130px);border:1.5px solid var(--line);border-radius:14px;background:var(--surface);font-family:var(--f-display);font-weight:700;font-size:34px;font-variant-numeric:tabular-nums}
+.pad button{min-height:clamp(100px,14.5vh,160px);border:1.5px solid var(--line);border-radius:14px;background:var(--surface);font-family:var(--f-display);font-weight:700;font-size:44px;font-variant-numeric:tabular-nums}
 .pad button:active{transform:scale(.97)}
-.pad.kp button{min-height:clamp(62px,8.6vh,92px);font-size:36px}
-.pad .sw{display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--f-body);font-size:34px;font-weight:900}
+.pad.kp button{min-height:clamp(70px,9.8vh,108px);font-size:42px}
+.pad .sw{display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--f-body);font-size:40px;font-weight:900}
 .pad .sw i{width:26px;height:26px;border-radius:50%;flex:none}
 .pad .tf-y{background:var(--ok);color:#fff;border-color:transparent;font-family:var(--f-body);font-size:38px}
 .pad .tf-n{background:var(--bad);color:#fff;border-color:transparent;font-family:var(--f-body);font-size:38px}
 .pad .go{background:var(--accent);color:var(--accent-ink);border-color:transparent}
 .entry{grid-column:1/-1;min-height:48px;display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-size:36px;font-weight:700;border-bottom:2px solid var(--line);font-variant-numeric:tabular-nums}
-.vstat{text-align:center;font-size:13px;color:var(--muted);min-height:20px}
-.vstat.warn{color:var(--bad)}
 
 /* RESULT */
 .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--line)}
@@ -156,6 +173,29 @@ textarea.csv{width:100%;min-height:120px;font:12px ui-monospace,monospace;border
       <label class="chip"><input type="checkbox" id="m-tf" value="tf"><span>是非題</span></label>
       <label class="chip"><input type="checkbox" id="m-short" value="short"><span>簡答題</span></label>
     </div>
+    <p class="note" id="modeNote" hidden>手勢作答開啟中：只出是非題。</p>
+  </div>
+
+  <div class="group">
+    <div class="label">手勢作答</div>
+    <label class="toggle" for="gesture"><span><b>舉手回答</b><small>手腕舉到肩膀高度以上：左手＝對、右手＝錯。手機立在 2–3 公尺外，前鏡頭要拍到上半身</small></span><input type="checkbox" id="gesture"></label>
+    <div class="gopts" id="gopts" hidden>
+      <div class="sub">舉手要停留多久才算</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="hold" id="h-200" value="200"><span>0.2 秒</span></label>
+        <label class="chip"><input type="radio" name="hold" id="h-300" value="300" checked><span>0.3 秒</span></label>
+        <label class="chip"><input type="radio" name="hold" id="h-500" value="500"><span>0.5 秒</span></label>
+      </div>
+      <p class="note">跑動時手臂擺動容易誤觸，誤觸多就改長一點。</p>
+      <label class="toggle" for="gswap"><span><b>左右對調</b><small>測試時舉左手卻亮「右手」，就打開這個</small></span><input type="checkbox" id="gswap"></label>
+      <button class="btn-ghost" id="gtestBtn">測試手勢與鏡頭位置</button>
+      <div class="gtest" id="gtest" hidden>
+        <canvas id="gtestCanvas" width="480" height="360"></canvas>
+        <div class="gind"><span id="gindL">左手 ↑ 對</span><span id="gindR">右手 ↑ 錯</span></div>
+        <p class="note" id="gtestNote"></p>
+        <button class="btn-ghost" id="gtestClose">關閉測試</button>
+      </div>
+    </div>
   </div>
 
   <div class="group">
@@ -190,9 +230,7 @@ textarea.csv{width:100%;min-height:120px;font:12px ui-monospace,monospace;border
 
   <div class="group">
     <div class="label">語音</div>
-    <label class="toggle" for="voiceIn"><span><b>語音作答</b><small>說出答案：數字、紅藍綠黃、對／錯</small></span><input type="checkbox" id="voiceIn"></label>
     <label class="toggle" for="voiceOut"><span><b>唸出題目</b><small>眼睛離開螢幕時用；顏色干擾題仍需看螢幕</small></span><input type="checkbox" id="voiceOut"></label>
-    <p class="note" id="voiceNote"></p>
   </div>
 
   <button class="btn-main" id="startBtn">開始</button>
@@ -210,9 +248,9 @@ textarea.csv{width:100%;min-height:120px;font:12px ui-monospace,monospace;border
     <button class="stop" id="stopBtn">停止</button>
   </div>
   <div class="timebar"><i id="tbar"></i></div>
+  <div class="gbox" id="gbox" hidden><canvas id="gboxCanvas" width="320" height="240"></canvas><b id="gboxText"></b></div>
   <div class="stage" id="stage"></div>
   <div class="pad" id="pad"></div>
-  <div class="vstat" id="vstat"></div>
 </section>
 
 <section id="result" class="wrap" hidden>
@@ -390,11 +428,13 @@ function readSettings(){
   return {
     name: $('#athlete').value.trim(),
     types: types.length ? types : ['math'],
-    modes: (m => m.length ? m : ['choice'])([...document.querySelectorAll('#modes input:checked')].map(i => i.value)),
+    modes: $('#gesture').checked ? ['tf'] : (m => m.length ? m : ['choice'])([...document.querySelectorAll('#modes input:checked')].map(i => i.value)),
+    gesture: $('#gesture').checked,
+    hold: +document.querySelector('input[name=hold]:checked').value,
+    gswap: $('#gswap').checked,
     level: +document.querySelector('input[name=level]:checked').value,
     limit: +document.querySelector('input[name=limit]:checked').value,
     len: document.querySelector('input[name=len]:checked').value,
-    voiceIn: $('#voiceIn').checked,
     voiceOut: $('#voiceOut').checked
   };
 }
@@ -410,7 +450,9 @@ function loadPrefs(){
   const modes = s.modes || (s.mode === 'mix' ? ['choice','tf','short'] : [s.mode || 'choice']);
   document.querySelectorAll('#modes input').forEach(i => i.checked = modes.includes(i.value));
   set('level', s.level); set('limit', s.limit); set('len', s.len);
-  $('#voiceIn').checked = !!s.voiceIn; $('#voiceOut').checked = !!s.voiceOut;
+  $('#voiceOut').checked = !!s.voiceOut;
+  $('#gesture').checked = !!s.gesture; $('#gswap').checked = !!s.gswap;
+  if(s.hold) set('hold', s.hold);
 }
 function updateLevelNote(){ $('#levelNote').textContent = LEVEL_NOTE[document.querySelector('input[name=level]:checked').value]; }
 
@@ -420,10 +462,10 @@ function beep(ok){
   try{
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
     const o = actx.createOscillator(), g = actx.createGain();
-    o.frequency.value = ok ? 880 : 220; o.type = ok ? 'sine' : 'square';
+    o.frequency.value = ok === null ? 520 : ok ? 880 : 220; o.type = ok === false ? 'square' : 'sine';
     g.gain.setValueAtTime(0.0001, actx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.15, actx.currentTime + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + (ok ? 0.12 : 0.25));
+    g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + (ok === false ? 0.25 : 0.12));
     o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime + 0.3);
   }catch(e){}
 }
@@ -446,133 +488,151 @@ function speak(text, done){
   }catch(e){ fin(); }
 }
 
-/* ---------- speech in ---------- */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let rec = null, recWanted = false, recPaused = false, recRunning = false;
-let recLen = 0, recBoundary = 0, numTimer = 0;
+/* ---------- gesture (pose) ---------- */
+// 用 Google MediaPipe Pose 偵測肩膀與手腕位置。第一次使用要下載程式與模型（約 15 MB），之後會存在手機裡。
+const MP_BASE = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21';
+const MP_MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
+const G = {lm:null, loading:null, stream:null, video:null, running:false, raf:0, lastT:-1, target:null, onPose:null};
 
-function cn2num(s){
-  if(/^\d+$/.test(s)) return +s;
-  const d = {'零':0,'〇':0,'一':1,'二':2,'兩':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9};
-  let total = 0, cur = 0;
-  for(const ch of s){
-    if(ch in d) cur = d[ch];
-    else if(ch === '十'){ total += (cur || 1) * 10; cur = 0; }
-    else if(ch === '百'){ total += (cur || 1) * 100; cur = 0; }
-  }
-  return total + cur;
+function gErrText(err){
+  const n = err && err.name;
+  if(n === 'NotAllowedError' || n === 'SecurityError') return '相機權限被拒絕。請在瀏覽器設定允許相機，或用安裝到手機的 App 開啟。';
+  if(n === 'NotFoundError' || n === 'OverconstrainedError') return '找不到前鏡頭。';
+  if(n === 'NotReadableError') return '相機正被其他 App 使用，請關掉其他用到相機的 App。';
+  return '第一次使用需要網路下載模型，請確認連線後再試。';
 }
-// 只講一個數字時，辨識常回傳同音字（例：七→期、九→酒）。只在整句很短時才換算，避免誤判。
-const DIGIT_SOUNDALIKE = {
-  '依':'一','衣':'一','醫':'一','伊':'一','壹':'一',
-  '兒':'二','而':'二','爾':'二','貳':'二',
-  '山':'三','參':'三','叁':'三','散':'三',
-  '死':'四','似':'四','寺':'四','肆':'四',
-  '我':'五','無':'五','舞':'五','午':'五','伍':'五','屋':'五',
-  '溜':'六','留':'六','劉':'六','陸':'六',
-  '期':'七','其':'七','妻':'七','騎':'七','齊':'七','棋':'七','漆':'七','柒':'七',
-  '吧':'八','爸':'八','巴':'八','拔':'八','捌':'八',
-  '酒':'九','久':'九','舊':'九','救':'九','玖':'九',
-  '時':'十','石':'十','實':'十','食':'十','拾':'十',
-  '玲':'零','鈴':'零','靈':'零'
-};
-function cleanText(t){ return (t || '').replace(/[\s，。,.!?！？、：:]/g, ''); }
-function parseAnswer(text, kind, loose){
-  let t = cleanText(text);
-  if(!t) return null;
-  if(kind === 'num'){
-    if(loose && t.length <= 3) t = [...t].map(ch => DIGIT_SOUNDALIKE[ch] || ch).join('');
-    const m = t.match(/\d+|[零〇一二兩三四五六七八九十百]+/g);
-    return m ? cn2num(m[m.length - 1]) : null;
+async function gInit(status){
+  if(!G.lm){
+    if(!G.loading){
+      G.loading = (async () => {
+        const vision = await import(MP_BASE + '/vision_bundle.mjs');
+        const files = await vision.FilesetResolver.forVisionTasks(MP_BASE + '/wasm');
+        const opts = d => ({baseOptions:{modelAssetPath:MP_MODEL, delegate:d}, runningMode:'VIDEO', numPoses:1,
+          minPoseDetectionConfidence:0.5, minPosePresenceConfidence:0.5, minTrackingConfidence:0.5});
+        try{ return await vision.PoseLandmarker.createFromOptions(files, opts('GPU')); }
+        catch(e){ return await vision.PoseLandmarker.createFromOptions(files, opts('CPU')); }
+      })();
+    }
+    status('載入手勢辨識…（第一次約需 10–30 秒）');
+    try{ G.lm = await G.loading; }catch(e){ G.loading = null; throw e; }
   }
-  if(kind === 'color'){
-    const m = t.match(/紅|洪|虹|宏|鴻|藍|籃|蘭|嵐|攔|綠|律|濾|慮|率|旅|黃|皇|凰|煌|璜|王/g);
-    if(!m) return null;
-    const w = m[m.length - 1];
-    return /紅|洪|虹|宏|鴻/.test(w) ? 'red' : /藍|籃|蘭|嵐|攔/.test(w) ? 'blue' : /綠|律|濾|慮|率|旅/.test(w) ? 'green' : 'yellow';
+  if(!G.stream){
+    status('開啟前鏡頭…');
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ const e = new Error('no camera'); e.name = 'NotFoundError'; throw e; }
+    G.stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user', width:{ideal:640}, height:{ideal:480}}, audio:false});
+    const v = document.createElement('video');
+    v.playsInline = true; v.muted = true; v.setAttribute('playsinline', ''); v.srcObject = G.stream;
+    await v.play();
+    G.video = v; G.lastT = -1;
   }
-  const m = t.match(/不對|不是|錯誤|沒錯|正確|錯|措|挫|對|隊|兌|是/g);
-  if(!m) return null;
-  return !/^(不對|不是|錯誤|錯|措|挫)$/.test(m[m.length - 1]);
+  gLoop();
 }
-
-function vstat(msg, warn){ const el = $('#vstat'); el.textContent = msg; el.classList.toggle('warn', !!warn); }
-// 從這一刻起才算這一題的回答；還沒講完的那句屬於上一題，直接跳過
-function armVoice(){ recBoundary = recLen; clearTimeout(numTimer); }
-
-function onRecResult(e){
-  recLen = e.results.length;
-  const heard = $('#heard');
-  if(heard && recLen) heard.textContent = '聽到：' + e.results[recLen - 1][0].transcript;
-  if(!S || !S.active || S.locked || recPaused || !S.cur || !S.qStart) return;
-  const q = S.cur;
-  for(let i = recBoundary; i < recLen; i++){
-    const r = e.results[i];
-    if(r.isFinal){
-      for(let a = 0; a < r.length; a++){
-        const v = parseAnswer(r[a].transcript, q.kind, true);
-        if(v !== null){ recBoundary = i + 1; submit(v, 'voice'); return; }
+function gLoop(){
+  if(G.running) return;
+  G.running = true;
+  const step = () => {
+    if(!G.running) return;
+    G.raf = requestAnimationFrame(step);
+    const v = G.video;
+    if(!v || v.readyState < 2 || v.currentTime === G.lastT) return;
+    G.lastT = v.currentTime;
+    const now = performance.now();
+    let pose = null;
+    try{ G.lm.detectForVideo(v, now, res => { pose = res.landmarks && res.landmarks[0] ? res.landmarks[0].map(p => ({x:p.x, y:p.y, visibility:p.visibility})) : null; }); }catch(e){ return; }
+    const g = gestureRead(pose, $('#gswap').checked);
+    gDraw(pose, g);
+    if(G.onPose) G.onPose(g, now);
+  };
+  step();
+}
+function gStop(){
+  G.running = false; cancelAnimationFrame(G.raf); G.onPose = null;
+  if(G.stream) G.stream.getTracks().forEach(t => t.stop());
+  G.stream = null; G.video = null; G.lastT = -1;
+}
+// 只看「手腕是否高於或等於同側肩膀」。座標 y 向下，所以 y 越小越高。
+// MediaPipe 的左右是「被拍的人自己的左右」；若手機鏡頭反過來，用「左右對調」修正。
+function gestureRead(pose, swap){
+  if(!pose) return {present:false, left:false, right:false};
+  const seen = p => p && (p.visibility == null || p.visibility > 0.5);
+  const up = (w, sh) => seen(w) && seen(sh) && w.y <= sh.y;
+  let L = up(pose[15], pose[11]), R = up(pose[16], pose[12]);
+  if(swap){ const t = L; L = R; R = t; }
+  return {present: seen(pose[11]) && seen(pose[12]), left:L, right:R};
+}
+// 判定規則：只有一隻手舉起、持續到設定的停留時間才算回答；雙手同時舉起不算。
+// 每題開始、每次回答之後，都要先看到雙手放下，才接受下一次回答，避免上一題的手延續到下一題。
+function gestureMachine(){
+  let side = null, since = 0, lastUp = 0, needRelease = true, downSince = 0;
+  return {
+    reset(){ side = null; needRelease = true; downSince = 0; },
+    step(g, now, holdMs){
+      const one = g.left !== g.right ? (g.left ? 'left' : 'right') : null;
+      const none = !g.left && !g.right;
+      if(needRelease){
+        if(none && g.present){ if(!downSince) downSince = now; if(now - downSince >= 150) needRelease = false; }
+        else downSince = 0;
+        side = null;
+        return {state:'release', progress:0};
       }
-      recBoundary = i + 1;
-    } else if(i === recLen - 1){
-      const v = parseAnswer(r[0].transcript, q.kind, false);
-      if(v === null) continue;
-      if(q.kind !== 'num'){ recBoundary = recLen; submit(v, 'voice'); return; }
-      // 數字要等講完（「十」可能是「十二」的開頭），停頓 0.6 秒沒變化就送出
-      clearTimeout(numTimer);
-      numTimer = setTimeout(() => {
-        if(S && S.active && !S.locked && S.cur === q){ recBoundary = recLen; submit(v, 'voice'); }
-      }, 600);
+      if(!one){
+        if(side && now - lastUp < 120) return {state:'hold', side, progress:Math.min(1, (now - since) / holdMs)};  // 容許一兩格辨識閃斷
+        side = null;
+        return {state: g.present ? 'ready' : 'lost', progress:0};
+      }
+      lastUp = now;
+      if(one !== side){ side = one; since = now; }
+      const progress = (now - since) / holdMs;
+      if(progress >= 1){
+        const t0 = since, fired = side;
+        side = null; needRelease = true; downSince = 0;
+        return {state:'fire', side:fired, t0, progress:1};
+      }
+      return {state:'hold', side, progress};
     }
+  };
+}
+const GM = gestureMachine();
+function gUse(where){
+  G.target = where === 'run' ? $('#gboxCanvas') : $('#gtestCanvas');
+  G.onPose = where === 'run' ? onRunPose : onTestPose;
+}
+function gDraw(pose, g){
+  const c = G.target, v = G.video; if(!c || !v) return;
+  const ctx = c.getContext('2d'), w = c.width, h = c.height;
+  ctx.save();
+  ctx.translate(w, 0); ctx.scale(-1, 1);   // 像照鏡子一樣顯示：舉左手，畫面左邊的手舉起
+  ctx.drawImage(v, 0, 0, w, h);
+  if(pose){
+    const sh = [pose[11], pose[12]];
+    const y = (sh[0].y + sh[1].y) / 2 * h;
+    ctx.strokeStyle = 'rgba(255,210,63,.9)'; ctx.lineWidth = Math.max(2, w / 160); ctx.setLineDash([w/40, w/60]);
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); ctx.setLineDash([]);
+    const dot = (p, col) => { if(!p) return; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(p.x * w, p.y * h, Math.max(4, w / 50), 0, Math.PI * 2); ctx.fill(); };
+    dot(pose[11], '#ffffff'); dot(pose[12], '#ffffff');
+    const swap = $('#gswap').checked;
+    dot(pose[swap ? 16 : 15], g.left ? '#3ecf6e' : '#9aa3ad');
+    dot(pose[swap ? 15 : 16], g.right ? '#ff5a4f' : '#9aa3ad');
   }
+  ctx.restore();
 }
-function recStart(){
-  if(!rec || recRunning || recPaused || !recWanted) return;
-  try{ rec.start(); recRunning = true; }catch(e){}
+function onTestPose(g){
+  $('#gindL').classList.toggle('on-l', g.left);
+  $('#gindR').classList.toggle('on-r', g.right);
+  $('#gtestNote').textContent = !g.present ? '看不到肩膀：退後一點，讓鏡頭拍到上半身。' :
+    (g.left && g.right) ? '雙手同時舉起不算回答。' : '黃色虛線是肩膀高度，手腕要舉到線以上。';
 }
-function makeRec(){
-  const r = new SR();
-  r.lang = 'zh-TW'; r.continuous = true; r.interimResults = true; r.maxAlternatives = 5;
-  r.onstart = () => { recLen = 0; recBoundary = 0; };
-  r.onaudiostart = () => { if(r === rec) vstat('🎙 聆聽中，直接說答案'); };
-  r.onresult = e => { if(r === rec) onRecResult(e); };
-  r.onerror = ev => {
-    if(r !== rec) return;
-    if(ev.error === 'not-allowed' || ev.error === 'service-not-allowed'){
-      recWanted = false;
-      vstat('麥克風被封鎖：請改用點選，或在瀏覽器設定允許麥克風', true);
-    } else if(ev.error === 'network'){
-      vstat('語音辨識需要網路，請確認連線', true);
-    }
-  };
-  r.onend = () => {
-    if(r !== rec) return;
-    recRunning = false;
-    if(!recWanted || !S || !S.active) return;
-    if(recPaused){ vstat('🔈 唸題中，唸完再回答'); return; }
-    vstat('⏳ 麥克風重新啟動…');
-    recStart();
-  };
-  return r;
-}
-function startRec(){
-  if(!SR){ vstat('這個瀏覽器不支援語音辨識，請改用點選（建議 Android Chrome）', true); return; }
-  stopRec();
-  recWanted = true; recPaused = false;
-  rec = makeRec();
-  recStart();
-}
-// 唸題時關掉麥克風，避免把 App 自己的聲音當成答案
-function pauseRec(){
-  recPaused = true; clearTimeout(numTimer);
-  if(rec && recRunning){ try{ rec.abort(); }catch(e){} }
-  vstat('🔈 唸題中，唸完再回答');
-}
-function resumeRec(){ recPaused = false; recStart(); }
-function stopRec(){
-  recWanted = false; recPaused = false; clearTimeout(numTimer);
-  const r = rec; rec = null; recRunning = false;
-  try{ r && r.abort(); }catch(e){}
+function onRunPose(g, now){
+  const r = (S && S.active && !S.counting && !S.locked && S.cur && S.qStart && S.cur.kind === 'bool')
+    ? GM.step(g, now, S.st.hold) : {state: g.present ? 'idle' : 'lost', progress:0};
+  const box = $('#gbox'), txt = $('#gboxText');
+  const st = g.present ? r.state : 'lost';
+  box.className = 'gbox' + (st === 'lost' ? '' : st === 'release' ? ' wait' : ' ok');
+  txt.textContent = st === 'lost' ? '看不到人' : st === 'release' ? '先放下雙手' : st === 'hold' ? '確認中…' : '可以作答';
+  const y = $('#pad .tf-y'), n = $('#pad .tf-n');
+  if(y) y.style.setProperty('--p', r.side === 'left' ? Math.min(1, r.progress) : 0);
+  if(n) n.style.setProperty('--p', r.side === 'right' ? Math.min(1, r.progress) : 0);
+  if(r.state === 'fire') submit(r.side === 'left', 'gesture', r.t0);
 }
 
 /* ---------- session ---------- */
@@ -583,13 +643,40 @@ function show(id){ ['setup','run','result'].forEach(x => $('#'+x).hidden = (x !=
 
 function startSession(){
   const st = readSettings(); savePrefs(st);
-  S = {st, log:[], t0:performance.now(), active:true, cur:null, locked:true, shownAt:0, qStart:0, timer:0, entry:''};
-  show('run'); vstat(st.voiceIn ? '' : '');
+  S = {st, log:[], t0:0, active:true, counting:true, cur:null, locked:true, shownAt:0, qStart:0, timer:0, entry:''};
+  show('run');
   try{ navigator.wakeLock && navigator.wakeLock.request('screen').then(l => wakeLock = l).catch(()=>{}); }catch(e){}
-  if(st.voiceIn) startRec();
-  beep(true);
-  nextQ();
-  loop();
+  // 3 秒倒數：讓選手先進入動作再開始出題；時間從倒數結束才開始算
+  const sess = S;
+  $('#rCount').innerHTML = `0<span>題</span>`;
+  $('#rClock').textContent = '0:00';
+  $('#tbar').style.transform = 'scaleX(1)';
+  $('#pad').className = 'pad'; $('#pad').innerHTML = '';
+  const stage = $('#stage'); stage.className = 'stage';
+  $('#gbox').hidden = !st.gesture;
+  if(st.gesture){
+    gUse('run');
+    gInit(msg => { stage.innerHTML = `<div class="gmsg">${esc(msg)}</div>`; })
+      .then(() => { if(S === sess && sess.active) runCountdown(sess, stage); else gStop(); })
+      .catch(err => { if(S === sess && sess.active) stage.innerHTML = `<div class="gmsg">手勢辨識無法啟動<small>${esc(gErrText(err))}</small></div>`; });
+    return;
+  }
+  runCountdown(sess, stage);
+}
+function runCountdown(sess, stage){
+  let n = 3;
+  const tick = () => {
+    if(S !== sess || !sess.active) return;
+    if(n === 0){
+      sess.counting = false; sess.t0 = performance.now();
+      beep(true); nextQ(); loop();
+      return;
+    }
+    stage.innerHTML = `<div class="rule">準備</div><div class="count">${n}</div>`;
+    beep(null);
+    n--; sess.cdTimer = setTimeout(tick, 1000);
+  };
+  tick();
 }
 
 
@@ -606,14 +693,11 @@ function nextQ(){
   S.shownAt = performance.now(); S.locked = false;
   const begin = () => {
     if(!S || !S.active) return;
-    if(st.voiceIn) resumeRec();
-    S.qStart = performance.now(); armVoice();
+    S.qStart = performance.now();
+    if(st.gesture) GM.reset();
     if(st.limit){ clearTimeout(S.timer); S.timer = setTimeout(onTimeout, st.limit * 1000); }
   };
-  if(st.voiceOut){
-    if(st.voiceIn) pauseRec();
-    speak(S.cur.speak || S.cur.prompt, begin);
-  } else begin();
+  if(st.voiceOut) speak(S.cur.speak || S.cur.prompt, begin); else begin();
 }
 
 function renderQ(){
@@ -621,11 +705,12 @@ function renderQ(){
   $('#rCount').innerHTML = `${S.log.length + 1}<span>題</span>`;
   const stage = $('#stage');
   stage.className = 'stage';
-  stage.innerHTML = q.stage + `<div class="prompt">${esc(q.prompt)}</div>` + (S.st.voiceIn ? '<div class="heard" id="heard"></div>' : '');
+  stage.innerHTML = q.stage + `<div class="prompt">${esc(q.prompt)}</div>`;
   const pad = $('#pad');
   if(q.kind === 'bool'){
     pad.className = 'pad g2';
-    pad.innerHTML = `<button class="tf-y" data-v="1">對 ✓</button><button class="tf-n" data-v="0">錯 ✕</button>`;
+    const g = S.st.gesture;
+    pad.innerHTML = `<button class="tf-y" data-v="1">${g ? '<small>舉左手</small>' : ''}對 ✓</button><button class="tf-n" data-v="0">${g ? '<small>舉右手</small>' : ''}錯 ✕</button>`;
   } else if(q.kind === 'color'){
     pad.className = 'pad g2';
     // 難度 1 保留色點方便入門；難度 2、3 只有文字，不能靠「顏色對顏色」配對作答
@@ -661,11 +746,12 @@ $('#pad').addEventListener('click', e => {
   else submit(+v, 'tap');
 });
 
-function submit(val, via){
+function submit(val, via, t0){
   if(!S || !S.active || S.locked) return;
-  S.locked = true; clearTimeout(S.timer); clearTimeout(numTimer);
+  S.locked = true; clearTimeout(S.timer);
   const now = performance.now();
-  const rt = now - (S.qStart || S.shownAt);
+  // 手勢作答：反應時間算到「手舉過肩」的那一刻，不含停留確認的時間
+  const rt = Math.max(0, (t0 || now) - (S.qStart || S.shownAt));
   const q = S.cur;
   const ok = val === q.answer;
   S.log.push({type:q.type, mode:q.mode, label:q.label, answer:fmt(q, q.answer), given:fmt(q, val), ok, rt:Math.round(rt), timeout:false, via});
@@ -711,8 +797,12 @@ function loop(){
 
 function endSession(){
   if(!S || !S.active) return;
-  S.active = false; clearTimeout(S.timer); cancelAnimationFrame(raf);
-  stopRec();
+  S.active = false; clearTimeout(S.timer); clearTimeout(S.cdTimer); cancelAnimationFrame(raf);
+  if(S.st.gesture){ gStop(); $('#gbox').hidden = true; }
+  if(S.counting){
+    try{ wakeLock && wakeLock.release(); }catch(e){} wakeLock = null;
+    show('setup'); return;
+  }
   try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
   try{ wakeLock && wakeLock.release(); }catch(e){} wakeLock = null;
   renderResult();
@@ -734,7 +824,7 @@ function renderResult(){
   const sm = summarize(log);
   $('#resTitle').textContent = st.name ? `${st.name} 的結果` : '本次結果';
   $('#resMeta').textContent = `${st.types.map(t => TYPE_NAME[t]).join('＋')}・難度 ${st.level}・` +
-    `${st.modes.map(m => MODE_NAME[m]).join('＋')}題・時限 ${st.limit ? st.limit + ' 秒' : '不限'}`;
+    `${st.modes.map(m => MODE_NAME[m]).join('＋')}題${st.gesture ? '（手勢）' : ''}・時限 ${st.limit ? st.limit + ' 秒' : '不限'}`;
   $('#kAcc').textContent = sm.n ? pct(sm.acc) : '–';
   $('#kRt').textContent = secs(sm.rt);
   $('#kN').textContent = sm.n;
@@ -742,8 +832,8 @@ function renderResult(){
   const types = [...new Set(log.map(r => r.type))];
   $('#byType').innerHTML = '<tr><th>題型</th><th>題數</th><th>正確率</th><th>平均反應(秒)</th></tr>' +
     types.map(t => { const s = summarize(log.filter(r => r.type === t)); return `<tr><td>${TYPE_NAME[t]}</td><td>${s.n}</td><td>${pct(s.acc)}</td><td>${secs(s.rt)}</td></tr>`; }).join('');
-  $('#detail').innerHTML = '<tr><th>#</th><th>題目</th><th>正解</th><th>作答</th><th>秒</th><th>方式</th></tr>' +
-    log.map((r,i) => `<tr><td>${i+1}</td><td>${esc(r.label)}</td><td>${esc(r.answer)}</td><td class="${r.ok?'y':'n'}">${r.timeout ? '逾時' : esc(r.given)}</td><td>${secs(r.rt)}</td><td>${r.via === 'voice' ? '語音' : r.via === 'tap' ? '點選' : ''}</td></tr>`).join('');
+  $('#detail').innerHTML = '<tr><th>#</th><th>題目</th><th>正解</th><th>作答</th><th>秒</th></tr>' +
+    log.map((r,i) => `<tr><td>${i+1}</td><td>${esc(r.label)}</td><td>${esc(r.answer)}</td><td class="${r.ok?'y':'n'}">${r.timeout ? '逾時' : esc(r.given)}</td><td>${secs(r.rt)}</td></tr>`).join('');
   $('#csvBox').hidden = true;
   if(sm.n){
     let h = []; try{ h = JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); }catch(e){}
@@ -802,19 +892,35 @@ $('#stopBtn').addEventListener('click', endSession);
 $('#againBtn').addEventListener('click', startSession);
 $('#backBtn').addEventListener('click', () => show('setup'));
 document.querySelectorAll('input[name=level]').forEach(i => i.addEventListener('change', updateLevelNote));
-function updateVoiceNote(){
-  const n = $('#voiceNote');
-  if($('#voiceIn').checked && !SR){ n.textContent = '這個瀏覽器不支援語音辨識。Android 請用 Chrome；iPhone 請用 Safari。'; n.className = 'note warn'; }
-  else if($('#voiceIn').checked){ n.textContent = '第一次使用會詢問麥克風權限。健身房噪音大時辨識率會下降。'; n.className = 'note'; }
-  else { n.textContent = ''; n.className = 'note'; }
-}
-$('#voiceIn').addEventListener('change', updateVoiceNote);
+
 document.addEventListener('visibilitychange', () => {
   if(document.visibilityState === 'visible' && S && S.active && navigator.wakeLock){
     navigator.wakeLock.request('screen').then(l => wakeLock = l).catch(()=>{});
   }
 });
-loadPrefs(); updateLevelNote(); updateVoiceNote(); renderHist();
+function syncGestureUI(){
+  const on = $('#gesture').checked;
+  $('#gopts').hidden = !on;
+  $('#modeNote').hidden = !on;
+  document.querySelectorAll('#modes input').forEach(i => i.disabled = on);
+  $('#modes').style.opacity = on ? .45 : 1;
+  if(!on) closeGestureTest();
+}
+function closeGestureTest(){
+  if(!$('#gtest').hidden){ gStop(); }
+  $('#gtest').hidden = true; $('#gtestBtn').hidden = false;
+}
+$('#gesture').addEventListener('change', syncGestureUI);
+$('#gtestBtn').addEventListener('click', () => {
+  $('#gtest').hidden = false; $('#gtestBtn').hidden = true;
+  gUse('test');
+  gInit(msg => { $('#gtestNote').textContent = msg; })
+    .then(() => { if($('#gtest').hidden && !(S && S.active)) gStop(); })
+    .catch(err => { $('#gtestNote').textContent = gErrText(err); });
+});
+$('#gtestClose').addEventListener('click', closeGestureTest);
+$('#startBtn').addEventListener('click', () => { if(!$('#gtest').hidden){ G.onPose = null; $('#gtest').hidden = true; $('#gtestBtn').hidden = false; } }, true);
+loadPrefs(); updateLevelNote(); syncGestureUI(); renderHist();
 </script>
 
 <script>

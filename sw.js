@@ -1,7 +1,8 @@
 // 離線快取：App 本體先存在手機裡，沒網路也能開。
 // 改版時把 VERSION 加 1，手機下次開啟就會換成新版。
-const VERSION = 'v4';
+const VERSION = 'v6';
 const CACHE = 'cogload-' + VERSION;
+const MP_CACHE = 'mediapipe-0.10.21';
 const SHELL = [
   './',
   './index.html',
@@ -37,6 +38,18 @@ self.addEventListener('fetch', e => {
         caches.open(CACHE).then(c => c.put('./index.html', copy));
         return res;
       }).catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
+  // 手勢辨識的程式與模型（約 15 MB）：存在獨立的快取，App 改版時不用重新下載
+  if (url.host === 'cdn.jsdelivr.net' && url.pathname.startsWith('/npm/@mediapipe/') ||
+      url.host === 'storage.googleapis.com' && url.pathname.startsWith('/mediapipe-models/')) {
+    e.respondWith(
+      caches.open(MP_CACHE).then(c => c.match(req).then(hit => hit || fetch(req).then(res => {
+        if (res.ok) c.put(req, res.clone());
+        return res;
+      })))
     );
     return;
   }
